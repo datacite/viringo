@@ -1,3 +1,4 @@
+"""OAI-PMH repository implementation for DataCite"""
 import os
 
 from flask import Flask
