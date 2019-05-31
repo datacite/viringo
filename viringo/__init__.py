@@ -1,8 +1,10 @@
 """OAI-PMH repository implementation for DataCite"""
 import os
 
-from flask import Flask
+from flask import Flask, Response
 
+class DefaultResponse(Response):
+    default_mimetype = 'application/xml'
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
@@ -28,5 +30,8 @@ def create_app(test_config=None):
     # Register Blueprints
     from viringo import oai
     app.register_blueprint(oai.bp)
+
+    # We want to use a custom response object for default content types
+    app.response_class = DefaultResponse
 
     return app
