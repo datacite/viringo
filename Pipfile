@@ -9,6 +9,7 @@ pytest = "*"
 
 [packages]
 flask = "*"
+pyoai = "*"
 
 [requires]
 python_version = "3.6"
