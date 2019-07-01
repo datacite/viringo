@@ -4,6 +4,7 @@ import os
 from flask import Flask, Response
 
 class DefaultResponse(Response):
+    """Handles default responses for the OAI-PMH responses"""
     default_mimetype = 'application/xml'
 
 def create_app(test_config=None):
@@ -29,7 +30,7 @@ def create_app(test_config=None):
 
     # Register Blueprints
     from viringo import oai
-    app.register_blueprint(oai.bp)
+    app.register_blueprint(oai.BP)
 
     # We want to use a custom response object for default content types
     app.response_class = DefaultResponse

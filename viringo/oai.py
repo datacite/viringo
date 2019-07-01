@@ -1,25 +1,29 @@
+"""OAI-PMH main request handling"""
+
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, g, request
 )
-from werkzeug.exceptions import abort
 from oaipmh import server, metadata
 from .catalogs import DataCiteOAIServer
 
-bp = Blueprint('oai', __name__)
+BP = Blueprint('oai', __name__)
 
 def get_oai_server():
     """Returns a server that can process and return OAI requests"""
     if 'oai' not in g:
+        catalog_server = DataCiteOAIServer()
+
         metadata_registry = metadata.MetadataRegistry()
         metadata_registry.registerWriter('oai_dc', server.oai_dc_writer)
-        oai = server.Server(DataCiteOAIServer(), metadata_registry,
-                                resumption_batch_size=7)
+        oai = server.Server(catalog_server,
+                            metadata_registry,
+                            resumption_batch_size=7)
 
         g.oai = oai
 
     return g.oai
 
-@bp.route('/')
+@BP.route('/')
 def index():
     """Root OAIPMH request handler"""
 

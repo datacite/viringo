@@ -5,7 +5,9 @@ pyoai library.
 """
 
 from datetime import datetime
-from oaipmh import common
+from oaipmh import common, error
+
+from .services import datacite
 
 class DataCiteOAIServer():
     """Build OAI-PMH data responses for DataCite metadata catalog"""
@@ -38,13 +40,53 @@ class DataCiteOAIServer():
         return identify
 
     def getRecord(self, metadataPrefix, identifier):
-        year = 2005
-        month = 1
-        day = 1
-        datestamp = datetime(year, month, day, 12, 30, 0)
-        fake_element = None
+        #pylint: disable=no-self-use,invalid-name
 
-        data = (common.Header(fake_element, str(1), datestamp, '', False),
-                common.Metadata(fake_element, {'title': ['Title %s' % 1]}), None)
+        """Returns pyoai data tuple for output"""
+        # We just want the DOI out of the OAI identifier.
+        _, doi = identifier.split(':')
+
+        result = datacite.get_metadata(doi)
+        if not result:
+            raise error.IdDoesNotExistError(
+                "\"%s\" is unknown or illegal in this repository" % identifier
+            )
+
+        # Choose the metadata output format
+
+        # Metadata map
+        metadata = {
+            'title': result.titles,
+            'creator': result.creators,
+            'subject': result.subjects,
+            'description': result.descriptions,
+            'publisher': [result.publisher],
+            'contributor': [result.contributor],
+            'date': [result.published_date],
+            'type': [result.resource_type],
+            'format': result.formats,
+            'identifier': result.identifiers,
+            'language': [result.language],
+            'relation': result.relations,
+            'rights': result.rights,
+        }
+
+        # Provider symbol can just be extracted from the client symbol
+        provider_symbol, _ = result.client.split(".")
+
+        data = (
+            common.Header(
+                "something",
+                identifier,
+                result.created_datetime,
+                setspec=[provider_symbol, result.client],
+                deleted=False # We never have deleted elements in the DOI repository
+            ),
+            common.Metadata(
+                None,
+                metadata
+            ),
+            None # About string - not used
+        )
 
         return data
