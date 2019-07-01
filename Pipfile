@@ -11,6 +11,7 @@ pytest = "*"
 flask = "*"
 pyoai = "*"
 requests = "*"
+python-dateutil = "*"
 
 [requires]
 python_version = "3.6"
