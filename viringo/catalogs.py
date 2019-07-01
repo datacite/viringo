@@ -55,18 +55,20 @@ class DataCiteOAIServer():
         # Choose the metadata output format
 
         # Metadata map
+        # The way the pyoai DC writer works is based on if there is empty lists it outputs
+        # So this is why we have in a few places wrapping singular data in lists
         metadata = {
             'title': result.titles,
             'creator': result.creators,
             'subject': result.subjects,
             'description': result.descriptions,
-            'publisher': [result.publisher],
-            'contributor': [result.contributor],
-            'date': [result.published_date],
-            'type': [result.resource_type],
+            'publisher': [result.publisher] if result.published_date else [],
+            'contributor': [result.contributor] if result.contributor else [],
+            'date': [result.published_date] if result.published_date else [],
+            'type': [result.resource_type] if result.resource_type else [],
             'format': result.formats,
             'identifier': result.identifiers,
-            'language': [result.language],
+            'language': [result.language] if result.language else [],
             'relation': result.relations,
             'rights': result.rights,
         }
