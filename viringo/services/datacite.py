@@ -69,7 +69,7 @@ def build_result(data):
     ]
     result.rights = [right.get('rights', '') for right in data['attributes']['rightsList']]
 
-    result.client = data['relationships']['client']['data'].get('id') or ''
+    result.client = data['relationships']['client']['data'].get('id').upper() or ''
 
     return result
 
