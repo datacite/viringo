@@ -9,26 +9,27 @@ import requests
 
 class DataCiteResult:
     """Represents a DataCite metadata resultset"""
-    created_datetime: datetime = datetime.min
-    xml = ''
-    titles = []
-    creators = []
-    subjects = []
-    descriptions = []
-    publisher = ''
-    publication_year = ''
-    dates = []
-    contributors = []
-    resource_types = []
-    funding_references = []
-    geo_locations = []
-    formats = []
-    identifiers = []
-    language = ''
-    relations = []
-    rights = []
-    sizes = []
-    client = ''
+    def __init__(self):
+        self.created_datetime: datetime = datetime.min
+        self.xml = ''
+        self.titles = []
+        self.creators = []
+        self.subjects = []
+        self.descriptions = []
+        self.publisher = ''
+        self.publication_year = ''
+        self.dates = []
+        self.contributors = []
+        self.resource_types = []
+        self.funding_references = []
+        self.geo_locations = []
+        self.formats = []
+        self.identifiers = []
+        self.language = ''
+        self.relations = []
+        self.rights = []
+        self.sizes = []
+        self.client = ''
 
 def build_result(data):
     """Parse single json-api data dict into service result object"""
