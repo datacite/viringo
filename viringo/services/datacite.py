@@ -16,28 +16,19 @@ class DataCiteResult:
     subjects = []
     descriptions = []
     publisher = ''
-    published_date = ''
-    contributor = ''
-    resource_type = ''
+    publication_year = ''
+    dates = []
+    contributors = []
+    resource_types = []
+    funding_references = []
+    geo_locations = []
     formats = []
     identifiers = []
     language = ''
     relations = []
     rights = []
+    sizes = []
     client = ''
-
-
-def related_identifier_to_string(related_identifier):
-    """Take a related identifier and return in a formatted single string"""
-    _id = related_identifier.get('relatedIdentifier')
-    _type = related_identifier.get('relatedIdentifierType') or ''
-    return _type.lower() + ":" + _id
-
-def identifier_to_string(identifier):
-    """Take an identifier and return in a formatted in single string"""
-    _id = identifier.get('identifier')
-    _type = identifier.get('identifierType') or ''
-    return _type.lower() + ":" + _id
 
 def build_result(data):
     """Parse single json-api data dict into service result object"""
@@ -55,23 +46,38 @@ def build_result(data):
         description.get('description', '') for description in data['attributes']['descriptions']
     ]
     result.publisher = data['attributes'].get('publisher') or ''
-    result.published_date = data['attributes'].get('published') or ''
-    result.contributor = data['attributes'].get('contributor') or ''
-    result.resource_type = data['attributes']['types'].get('resourceTypeGeneral') or ''
+    result.publication_year = data['attributes'].get('publicationYear') or ''
+    result.dates = [
+        {'type': date['dateType'], 'date': date['date']} for date in data['attributes']['dates']
+    ]
+    result.contributors = data['attributes'].get('contributors') or []
+    result.funding_references = data['attributes'].get('fundingReferences') or []
+    result.sizes = data['attributes'].get('sizes') or []
+    result.geo_locations = data['attributes'].get('geoLocations') or []
+    result.resource_types = [
+        data['attributes']['types'].get('resourceTypeGeneral') or '',
+        data['attributes']['types'].get('resourceType') or ''
+    ]
     result.formats = data['attributes'].get('formats') or []
-    result.identifiers = result.relations = [
-        identifier_to_string(identifier) for identifier in data['attributes']['identifiers']
+    result.identifiers = [
+        {'type': identifier['identifierType'], 'identifier': strip_uri_prefix(identifier['identifier']).upper()}
+        for identifier in data['attributes']['identifiers']
     ]
     result.language = data['attributes'].get('language') or ''
     result.relations = [
-        related_identifier_to_string(relation)
-        for relation in data['attributes']['relatedIdentifiers']
+        {'type': related['relatedIdentifierType'], 'identifier': related['relatedIdentifier']}
+        for related in data['attributes']['relatedIdentifiers']
     ]
-    result.rights = [right.get('rights', '') for right in data['attributes']['rightsList']]
-
+    result.rights = [{'statement': right['rights'], 'uri': right['rightsUri']} for right in data['attributes']['rightsList']]
     result.client = data['relationships']['client']['data'].get('id').upper() or ''
 
     return result
+
+def strip_uri_prefix(identifier):
+    """Strip common prefixes because OAI doesn't work with those kind of ID's"""
+    if identifier.startswith("https://doi.org/"):
+        _, identifier = identifier.split("https://doi.org/")
+    return identifier
 
 def get_metadata(doi):
     """Return a parsed metadata result from the dataset API

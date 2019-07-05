@@ -55,22 +55,43 @@ class DataCiteOAIServer():
         # Choose the metadata output format
 
         # Metadata map
-        # The way the pyoai DC writer works is based on if there is empty lists it outputs
+        # The way the DC writer works is based on if there is empty lists it outputs
         # So this is why we have in a few places wrapping singular data in lists
+
+        dates = []
+        if result.publication_year:
+            dates.append(str(result.publication_year))
+        dates.extend([date['type'] + ": " + str(date['date']) for date in result.dates])
+
+        rights = []
+        for right in result.rights:
+            rights.append(right['statement'])
+            if right['uri']:
+                rights.append(right['uri'])
+
+        identifiers = [
+            identifier_to_string(identifier) for identifier in result.identifiers
+        ]
+
+        relations = [
+            identifier_to_string(relation)
+            for relation in result.relations
+        ]
+
         metadata = {
             'title': result.titles,
             'creator': result.creators,
             'subject': result.subjects,
             'description': result.descriptions,
-            'publisher': [result.publisher] if result.published_date else [],
-            'contributor': [result.contributor] if result.contributor else [],
-            'date': [result.published_date] if result.published_date else [],
-            'type': [result.resource_type] if result.resource_type else [],
+            'publisher': [result.publisher] if result.publisher else [],
+            'contributor': result.contributors,
+            'date': dates,
+            'type': result.resource_types,
             'format': result.formats,
-            'identifier': result.identifiers,
+            'identifier': identifiers,
+            'relation': relations,
             'language': [result.language] if result.language else [],
-            'relation': result.relations,
-            'rights': result.rights,
+            'rights': rights,
         }
 
         # Provider symbol can just be extracted from the client symbol
@@ -92,3 +113,9 @@ class DataCiteOAIServer():
         )
 
         return data
+
+def identifier_to_string(identifier):
+    """Take an identifier and return in a formatted in single string"""
+    _id = identifier.get('identifier')
+    _type = identifier.get('type') or ''
+    return _type.lower() + ":" + _id
