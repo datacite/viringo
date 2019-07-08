@@ -55,9 +55,32 @@ class DataCiteOAIServer():
         # Choose the metadata output format
 
         # Metadata map
-        # The way the DC writer works is based on if there is empty lists it outputs
-        # So this is why we have in a few places wrapping singular data in lists
+        metadata = {}
+        if metadataPrefix == "oai_dc":
+            metadata = self.build_dc_metadata_map(result)
 
+        # Provider symbol can just be extracted from the client symbol
+        provider_symbol, _ = result.client.split(".")
+
+        data = (
+            common.Header(
+                "something",
+                identifier,
+                result.created_datetime,
+                setspec=[provider_symbol, result.client],
+                deleted=False # We never have deleted elements in the DOI repository
+            ),
+            common.Metadata(
+                None,
+                metadata
+            ),
+            None # About string - not used
+        )
+
+        return data
+
+    def build_dc_metadata_map(self, result):
+        """Construct a metadata map object for DC writing"""
         dates = []
         if result.publication_year:
             dates.append(str(result.publication_year))
@@ -94,25 +117,8 @@ class DataCiteOAIServer():
             'rights': rights,
         }
 
-        # Provider symbol can just be extracted from the client symbol
-        provider_symbol, _ = result.client.split(".")
+        return metadata
 
-        data = (
-            common.Header(
-                "something",
-                identifier,
-                result.created_datetime,
-                setspec=[provider_symbol, result.client],
-                deleted=False # We never have deleted elements in the DOI repository
-            ),
-            common.Metadata(
-                None,
-                metadata
-            ),
-            None # About string - not used
-        )
-
-        return data
 
 def identifier_to_string(identifier):
     """Take an identifier and return in a formatted in single string"""

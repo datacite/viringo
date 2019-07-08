@@ -1,5 +1,4 @@
-import pytest
-import oaipmh.server
+"""Tests for http endpoints of OAI-PMH verbs"""
 
 from lxml import etree
 
@@ -36,7 +35,8 @@ def test_identify(client):
     # Compare the main part of the request against test case
     assert original == target
 
-def test_get_record_dc(client, mocker):
+def test_get_record_dc(client):
+    """Test the getRecord verb responds and conforms as expected"""
     # Mock the datacite service to ensure the same record data is returned.
 
     response = client.get('/?verb=GetRecord&metadataPrefix=oai_dc&identifier=doi:10.5438/prvv-nv23')
