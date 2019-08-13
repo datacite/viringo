@@ -41,8 +41,8 @@ class DataCiteOAIServer():
 
     def getRecord(self, metadataPrefix, identifier):
         #pylint: disable=no-self-use,invalid-name
+        """Returns pyoai data tuple for specific record"""
 
-        """Returns pyoai data tuple for output"""
         # We just want the DOI out of the OAI identifier.
         _, doi = identifier.split(':')
 
@@ -68,7 +68,7 @@ class DataCiteOAIServer():
                 identifier,
                 result.created_datetime,
                 setspec=[provider_symbol, result.client],
-                deleted=False # We never have deleted elements in the DOI repository
+                deleted=not result.active
             ),
             common.Metadata(
                 None,
@@ -78,6 +78,61 @@ class DataCiteOAIServer():
         )
 
         return data
+
+    def listRecords(self, metadataPrefix=None, from_=None, until=None, set=None, cursor=None, paging_cursor=None):
+        #pylint: disable=no-self-use,invalid-name
+        """Returns pyoai data tuple for list of records"""
+
+        # Get both a provider and client_id from the set
+        client_id = None
+        provider_id = None
+
+        # DataCite API deals in lowercase
+        if set:
+            set.lower()
+            if "." in set:
+                provider_id, client_id = set.split(".")
+            else:
+                provider_id = set.lower()
+
+        results, paging_cursor = datacite.get_metadata_list(
+            provider_id=provider_id,
+            client_id=client_id,
+            from_datetime=from_,
+            until_datetime=until,
+            cursor=paging_cursor
+        )
+
+        records = []
+        if results:
+            for result in results:
+                metadata = {}
+                if metadataPrefix == "oai_dc":
+                    metadata = self.build_dc_metadata_map(result)
+
+                # Provider symbol can just be extracted from the client symbol
+                provider_symbol, _ = result.client.split(".")
+
+                data = (
+                    common.Header(
+                        "something",
+                        result.id,
+                        result.created_datetime,
+                        setspec=[provider_symbol, result.client],
+                        deleted=not result.active
+                    ),
+                    common.Metadata(
+                        None,
+                        metadata
+                    ),
+                    None # About string - not used
+                )
+
+                records.append(data)
+
+        # This differs from the pyoai implementation in that we have to return a cursor here
+        # But this is okay as we have a custom server to handle it.
+        return records, paging_cursor
 
     def build_dc_metadata_map(self, result):
         """Construct a metadata map object for DC writing"""
@@ -101,13 +156,17 @@ class DataCiteOAIServer():
             for relation in result.relations
         ]
 
+        contributors = [
+            contributor.get('name') for contributor in result.contributors
+        ]
+
         metadata = {
             'title': result.titles,
             'creator': result.creators,
             'subject': result.subjects,
             'description': result.descriptions,
             'publisher': [result.publisher] if result.publisher else [],
-            'contributor': result.contributors,
+            'contributor': contributors,
             'date': dates,
             'type': result.resource_types,
             'format': result.formats,
