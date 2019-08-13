@@ -4,12 +4,16 @@ import base64
 from datetime import datetime
 import dateutil.parser
 import dateutil.tz
-
+from urllib.parse import urlparse, parse_qs
 import requests
+
+#TODO: Move this to environment based variable
+API_URL = 'http://api.test.datacite.org'
 
 class DataCiteResult:
     """Represents a DataCite metadata resultset"""
     def __init__(self):
+        self.id = ''
         self.created_datetime: datetime = datetime.min
         self.xml = ''
         self.titles = []
@@ -30,65 +34,156 @@ class DataCiteResult:
         self.rights = []
         self.sizes = []
         self.client = ''
+        self.active = True
 
 def build_result(data):
     """Parse single json-api data dict into service result object"""
     result = DataCiteResult()
+
+    result.id = data.get('id')
+
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
     # This is because OAI always works in UTC.
-    updated = dateutil.parser.parse(data['attributes']['updated'])
-    result.created_datetime = updated.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
+    created = dateutil.parser.parse(data['attributes']['created'])
+    result.created_datetime = created.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
 
-    result.xml = base64.b64decode(data['attributes']['xml'])
-    result.titles = [title.get('title', '') for title in data['attributes']['titles']]
-    result.creators = [creator.get('name', '') for creator in data['attributes']['creators']]
-    result.subjects = [subject.get('subject', '') for subject in data['attributes']['subjects']]
+    result.xml = base64.b64decode(data['attributes']['xml']) if data['attributes']['xml'] is not None else None
+
+    result.titles = [
+        title.get('title', '') for title in data['attributes']['titles']
+    ] if data['attributes']['titles'] is not None else []
+
+    result.creators = [
+        creator.get('name', '') for creator in data['attributes']['creators']
+    ]  if data['attributes']['creators'] is not None else []
+
+    result.subjects = [
+        subject.get('subject', '') for subject in data['attributes']['subjects']
+    ] if data['attributes']['subjects'] is not None else []
+
     result.descriptions = [
         description.get('description', '') for description in data['attributes']['descriptions']
-    ]
+    ]  if data['attributes']['descriptions'] is not None else []
+
     result.publisher = data['attributes'].get('publisher') or ''
     result.publication_year = data['attributes'].get('publicationYear') or ''
+
     result.dates = [
         {'type': date['dateType'], 'date': date['date']} for date in data['attributes']['dates']
-    ]
+    ] if data['attributes']['dates'] is not None else []
+
     result.contributors = data['attributes'].get('contributors') or []
     result.funding_references = data['attributes'].get('fundingReferences') or []
     result.sizes = data['attributes'].get('sizes') or []
     result.geo_locations = data['attributes'].get('geoLocations') or []
-    result.resource_types = [
-        data['attributes']['types'].get('resourceTypeGeneral') or '',
-        data['attributes']['types'].get('resourceType') or ''
-    ]
+
+    result.resource_types = []
+    result.resource_types += [data['attributes']['types'].get('resourceTypeGeneral')] if data['attributes']['types'].get('resourceTypeGeneral') is not None else []
+    result.resource_types += [data['attributes']['types'].get('resourceType')] if data['attributes']['types'].get('resourceType') is not None else []
+
     result.formats = data['attributes'].get('formats') or []
-    result.identifiers = [
-        {'type': identifier['identifierType'], 'identifier': strip_uri_prefix(identifier['identifier']).upper()}
-        for identifier in data['attributes']['identifiers']
-    ]
+
+    result.identifiers = []
+
+    for identifier in data['attributes']['identifiers']:
+        if identifier['identifier']:
+            result.identifiers.append({
+                'type': identifier['identifierType'],
+                'identifier': strip_uri_prefix(identifier['identifier'])
+            })
+
     result.language = data['attributes'].get('language') or ''
+
     result.relations = [
         {'type': related['relatedIdentifierType'], 'identifier': related['relatedIdentifier']}
         for related in data['attributes']['relatedIdentifiers']
-    ]
-    result.rights = [{'statement': right['rights'], 'uri': right['rightsUri']} for right in data['attributes']['rightsList']]
+    ] if data['attributes']['relatedIdentifiers'] is not None else []
+
+    result.rights = [
+        {'statement': right.get('rights', None), 'uri': right.get('rightsUri', None)}
+        for right in data['attributes']['rightsList']
+    ] if data['attributes']['rightsList'] is not None else []
+
     result.client = data['relationships']['client']['data'].get('id').upper() or ''
+
+    # We make the active decision based upon if there is metadata and the isActive flag
+    # This is the same as previous oai-pmh datacite implementation.
+    result.active = True if result.xml and data.get('isActive', True) else False
 
     return result
 
 def strip_uri_prefix(identifier):
     """Strip common prefixes because OAI doesn't work with those kind of ID's"""
-    if identifier.startswith("https://doi.org/"):
-        _, identifier = identifier.split("https://doi.org/")
+    if identifier:
+        if identifier.startswith("https://doi.org/"):
+            _, identifier = identifier.split("https://doi.org/")
+    else:
+        identifier = ''
     return identifier
 
 def get_metadata(doi):
-    """Return a parsed metadata result from the dataset API
+    """Return a parsed metadata result from the DataCite API
 
     Aside from the raw xml, the attributes parsed are best guesses for returning filled data.
     """
-    api_url = 'http://api.datacite.org'
-    response = requests.get(api_url + '/dois/' + doi)
+
+    response = requests.get(API_URL + '/dois/' + doi)
     if response.status_code == 200:
         data = response.json()['data']
         return build_result(data)
     else:
-        return None
+        response.raise_for_status()
+
+    return None
+
+def get_metadata_list(provider_id=None, client_id=None, from_datetime=None, until_datetime=None, cursor=None):
+    """Returns metadata in parsed metadata result from the DataCite API"""
+
+    # Trigger cursor navigation with a starting value
+    if not cursor:
+        cursor = 1
+
+    # Whenever just a from is specified always set the until to latest timestamp.
+    if from_datetime and not until_datetime:
+        until_datetime = datetime.now()
+
+    # Construct a custom query for datetime filtering.
+    datetime_query = "updated:[{0}+TO+{1}]".format(from_datetime.isoformat(), until_datetime.isoformat())
+
+    params = {
+        'detail': True,
+        'provider_id': provider_id,
+        'client_id': client_id,
+        'query': datetime_query,
+        'page[size]': 50,
+        'page[cursor]': cursor
+    }
+
+    # Construct the payload as a string
+    # to avoid direct urlencoding by requests library which messes up some of the params
+    payload_str = "&".join("%s=%s" % (k, v) for k, v in params.items() if v is not None)
+
+    response = requests.get(API_URL + '/dois', params=payload_str)
+
+    if response.status_code == 200:
+        json = response.json()
+
+        if json['meta']['total'] == 0:
+            return None, None
+
+        # Grab out the cursor bit from the full next link
+        query = parse_qs(urlparse(json['links']['next']).query)
+        cursor = query['page[cursor]'][0] # It comes back as a list but only ever one value
+
+        data = json['data']
+        results = []
+        for doi_entry in data:
+            result = build_result(doi_entry)
+            results.append(result)
+
+        return results, cursor
+    else:
+        response.raise_for_status()
+
+    return None
+
