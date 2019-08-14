@@ -6,7 +6,7 @@
   <GetRecord>
     <record>
       <header>
-        <identifier>doi:10.5438/prvv-nv23</identifier>
+        <identifier>doi:10.5072/not-a-real-doi</identifier>
         <datestamp>2018-03-17T06:33:00Z</datestamp>
         <setSpec>DATACITE</setSpec>
         <setSpec>DATACITE.DATACITE</setSpec>

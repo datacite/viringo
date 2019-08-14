@@ -65,7 +65,7 @@ class DataCiteOAIServer():
         data = (
             common.Header(
                 "something",
-                identifier,
+                'doi:' + result.identifier,
                 result.created_datetime,
                 setspec=[provider_symbol, result.client],
                 deleted=not result.active
@@ -116,7 +116,7 @@ class DataCiteOAIServer():
                 data = (
                     common.Header(
                         "something",
-                        result.identifier,
+                        'doi:' + result.identifier,
                         result.created_datetime,
                         setspec=[provider_symbol, result.client],
                         deleted=not result.active
