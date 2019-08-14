@@ -182,18 +182,22 @@ def get_metadata_list(
         until_datetime = datetime.now()
 
     # Construct a custom query for datetime filtering.
-    datetime_query = "updated:[{0}+TO+{1}]".format(
-        from_datetime.isoformat(), until_datetime.isoformat()
-    )
+    datetime_query = ''
+    if from_datetime and until_datetime:
+        datetime_query = "updated:[{0}+TO+{1}]".format(
+            from_datetime.isoformat(), until_datetime.isoformat()
+        )
 
     params = {
         'detail': True,
         'provider_id': provider_id,
         'client_id': client_id,
-        'query': datetime_query,
         'page[size]': 50,
         'page[cursor]': cursor
     }
+
+    if datetime_query:
+        params['query'] = datetime_query
 
     # Construct the payload as a string
     # to avoid direct urlencoding by requests library which messes up some of the params
