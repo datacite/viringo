@@ -17,7 +17,7 @@ def oai_dc_writer(element: etree.Element, metadata: dict):
         return '{%s}%s' % (NS_DC, name)
 
     e_dc = etree.SubElement(element, nsoaidc('dc'),
-                            nsmap={'oai_dc': NS_OAIDC, 'dc': NS_DC, 'xsi': NS_XSI})
+                            nsmap={'dc': NS_DC, 'oai_dc': NS_OAIDC, 'xsi': NS_XSI})
     e_dc.set('{%s}schemaLocation' % NS_XSI,
              '%s http://www.openarchives.org/OAI/2.0/oai_dc.xsd' % NS_OAIDC)
 

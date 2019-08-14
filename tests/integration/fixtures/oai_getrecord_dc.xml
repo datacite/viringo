@@ -7,28 +7,26 @@
     <record>
       <header>
         <identifier>doi:10.5438/prvv-nv23</identifier>
-        <datestamp>2019-06-27T20:16:54Z</datestamp>
+        <datestamp>2018-03-17T06:33:00Z</datestamp>
         <setSpec>DATACITE</setSpec>
-        <setSpec>DATACITE.BLOG</setSpec>
+        <setSpec>DATACITE.DATACITE</setSpec>
       </header>
       <metadata>
         <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-          <dc:title>Welcome to the DataCite Team, Richard!</dc:title>
+          <dc:title>This is a fake DOI with fake metadata.</dc:title>
           <dc:creator>Fenner, Martin</dc:creator>
           <dc:creator>Hallett, Richard</dc:creator>
           <dc:publisher>DataCite</dc:publisher>
           <dc:date>2018</dc:date>
-          <dc:date>Created: 2018-01-18</dc:date>
           <dc:date>Issued: 2018-01-18</dc:date>
+          <dc:date>Created: 2018-01-18</dc:date>
           <dc:date>Updated: 2018-01-18</dc:date>
-          <dc:identifier>doi:10.5438/PRVV-NV23</dc:identifier>
-          <dc:relation>doi:10.5438/0000-00ss</dc:relation>
+          <dc:identifier>doi:10.5072/not-a-real-doi</dc:identifier>
+          <dc:relation>doi:10.5072/related-not-a-real-doi</dc:relation>
           <dc:subject>datacite</dc:subject>
-          <dc:description>DataCite is pleased to welcome Richard Hallett to our team. Richard joined DataCite as application developer in December. Get to know him better via this interview. Richard Hallett Can you tell us a little bit about what you did before you started...</dc:description>
+          <dc:description>This is a fake DOI with fake metadata.</dc:description>
           <dc:type>Text</dc:type>
           <dc:type>BlogPosting</dc:type>
-          <dc:rights>https://creativecommons.org/licenses/by/4.0/</dc:rights>
-          <dc:rights>https://creativecommons.org/licenses/by/4.0</dc:rights>
         </oai_dc:dc>
       </metadata>
     </record>

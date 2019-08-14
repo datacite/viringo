@@ -116,7 +116,7 @@ class DataCiteOAIServer():
                 data = (
                     common.Header(
                         "something",
-                        result.id,
+                        result.identifier,
                         result.created_datetime,
                         setspec=[provider_symbol, result.client],
                         deleted=not result.active
@@ -143,7 +143,8 @@ class DataCiteOAIServer():
 
         rights = []
         for right in result.rights:
-            rights.append(right['statement'])
+            if right['statement']:
+                rights.append(right['statement'])
             if right['uri']:
                 rights.append(right['uri'])
 

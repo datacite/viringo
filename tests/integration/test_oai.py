@@ -2,6 +2,8 @@
 
 from lxml import etree
 
+from . import factories
+
 def construct_oai_xml_comparisons(fixture_file_path, target_xml, oai_element):
     """Return element xml strings for comparison based on fixture file and a target xml string"""
     # Load metadata from our file and the response
@@ -27,7 +29,7 @@ def test_identify(client):
 
     # Compare just the verb part of the oai xml
     original, target = construct_oai_xml_comparisons(
-        'tests/files/oai_identify.xml',
+        'tests/integration/fixtures/oai_identify.xml',
         response.get_data(),
         "Identify"
     )
@@ -35,9 +37,14 @@ def test_identify(client):
     # Compare the main part of the request against test case
     assert original == target
 
-def test_get_record_dc(client):
+def test_get_record_dc(client, mocker):
     """Test the getRecord verb responds and conforms as expected"""
     # Mock the datacite service to ensure the same record data is returned.
+    mocked_get_metadata = mocker.patch('viringo.services.datacite.get_metadata')
+    # Get fake result
+    result = factories.DataCiteResultFactory()
+    # Set the mocked service to use the fake result
+    mocked_get_metadata.return_value = result
 
     response = client.get('/?verb=GetRecord&metadataPrefix=oai_dc&identifier=doi:10.5438/prvv-nv23')
 
@@ -46,11 +53,10 @@ def test_get_record_dc(client):
 
     # Compare just the verb part of the oai xml
     original, target = construct_oai_xml_comparisons(
-        'tests/files/oai_getrecord_dc.xml',
+        'tests/integration/fixtures/oai_getrecord_dc.xml',
         response.get_data(),
         "GetRecord"
     )
-    print(original, target)
 
     # Compare the main part of the request against test case
     assert original == target

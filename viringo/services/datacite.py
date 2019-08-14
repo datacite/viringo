@@ -8,39 +8,64 @@ from urllib.parse import urlparse, parse_qs
 import requests
 
 #TODO: Move this to environment based variable
-API_URL = 'http://api.test.datacite.org'
+API_URL = 'http://api.datacite.org'
 
 class DataCiteResult:
     """Represents a DataCite metadata resultset"""
-    def __init__(self):
-        self.id = ''
-        self.created_datetime: datetime = datetime.min
-        self.xml = ''
-        self.titles = []
-        self.creators = []
-        self.subjects = []
-        self.descriptions = []
-        self.publisher = ''
-        self.publication_year = ''
-        self.dates = []
-        self.contributors = []
-        self.resource_types = []
-        self.funding_references = []
-        self.geo_locations = []
-        self.formats = []
-        self.identifiers = []
-        self.language = ''
-        self.relations = []
-        self.rights = []
-        self.sizes = []
-        self.client = ''
-        self.active = True
+    def __init__(
+            self,
+            identifier=None,
+            created_datetime=None,
+            xml=None,
+            titles=None,
+            creators=None,
+            subjects=None,
+            descriptions=None,
+            publisher=None,
+            publication_year=None,
+            dates=None,
+            contributors=None,
+            resource_types=None,
+            funding_references=None,
+            geo_locations=None,
+            formats=None,
+            identifiers=None,
+            language=None,
+            relations=None,
+            rights=None,
+            sizes=None,
+            client=None,
+            active=True
+        ):
+
+        self.identifier = identifier
+        self.created_datetime = created_datetime or datetime.min
+        self.xml = xml
+        self.titles = titles or []
+        self.creators = creators or []
+        self.subjects = subjects or []
+        self.descriptions = descriptions or []
+        self.publisher = publisher
+        self.publication_year = publication_year
+        self.dates = dates or []
+        self.contributors = contributors or []
+        self.resource_types = resource_types or []
+        self.funding_references = funding_references or []
+        self.geo_locations = geo_locations or []
+        self.formats = formats or []
+        self.identifiers = identifiers or []
+        self.language = language
+        self.relations = relations or []
+        self.rights = rights or []
+        self.sizes = sizes or []
+        self.client = client
+        self.active = active
 
 def build_result(data):
     """Parse single json-api data dict into service result object"""
     result = DataCiteResult()
 
-    result.id = data.get('id')
+    result.identifier = data.get('id')
 
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
     # This is because OAI always works in UTC.
