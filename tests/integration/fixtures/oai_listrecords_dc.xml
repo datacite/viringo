@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="xsl/oaitohtml.xsl"?>
+<?xml-stylesheet type="text/xsl" href="xsl/oaitohtml.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2019-08-14T13:31:47Z</responseDate>
+  <request from="2011-06-01T00:00:00Z" metadataPrefix="oai_dc" verb="ListRecords">https://oai.datacite.org/oai</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>doi:10.5072/not-a-real-doi</identifier>
+        <datestamp>2018-03-17T06:33:00Z</datestamp>
+        <setSpec>DATACITE</setSpec>
+        <setSpec>DATACITE.DATACITE</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>This is a fake DOI with fake metadata.</dc:title>
+          <dc:creator>Fenner, Martin</dc:creator>
+          <dc:creator>Hallett, Richard</dc:creator>
+          <dc:publisher>DataCite</dc:publisher>
+          <dc:date>2018</dc:date>
+          <dc:date>Issued: 2018-01-18</dc:date>
+          <dc:date>Created: 2018-01-18</dc:date>
+          <dc:date>Updated: 2018-01-18</dc:date>
+          <dc:identifier>doi:10.5072/not-a-real-doi</dc:identifier>
+          <dc:relation>doi:10.5072/related-not-a-real-doi</dc:relation>
+          <dc:subject>datacite</dc:subject>
+          <dc:description>This is a fake DOI with fake metadata.</dc:description>
+          <dc:type>Text</dc:type>
+          <dc:type>BlogPosting</dc:type>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>doi:10.5072/not-a-real-doi-2</identifier>
+        <datestamp>2018-05-17T06:33:00Z</datestamp>
+        <setSpec>DATACITE</setSpec>
+        <setSpec>DATACITE.DATACITE</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>This is a fake DOI with fake metadata.</dc:title>
+          <dc:creator>Fenner, Martin</dc:creator>
+          <dc:creator>Hallett, Richard</dc:creator>
+          <dc:publisher>DataCite</dc:publisher>
+          <dc:date>2018</dc:date>
+          <dc:date>Issued: 2018-02-16</dc:date>
+          <dc:date>Created: 2018-02-16</dc:date>
+          <dc:date>Updated: 2018-02-16</dc:date>
+          <dc:identifier>doi:10.5072/not-a-real-doi-2</dc:identifier>
+          <dc:subject>datacite</dc:subject>
+          <dc:description>This is a fake DOI with fake metadata.</dc:description>
+          <dc:type>Text</dc:type>
+          <dc:type>BlogPosting</dc:type>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <resumptionToken>metadataPrefix%3Doai_dc%26paging_cursor%3D1%26cursor%3DNone</resumptionToken>
+  </ListRecords>
+</OAI-PMH>
