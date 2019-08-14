@@ -52,19 +52,71 @@ class DataCiteOAIServer():
                 "\"%s\" is unknown or illegal in this repository" % identifier
             )
 
-        # Choose the metadata output format
-
-        # Metadata map
+        # Build metadata based on requested format and result
         metadata = {}
         if metadataPrefix == "oai_dc":
             metadata = self.build_dc_metadata_map(result)
+
+        data = self.build_record(result, metadata)
+
+        return data
+
+    def listRecords(
+            self,
+            metadataPrefix=None,
+            from_=None,
+            until=None,
+            set_=None,
+            paging_cursor=None
+        ):
+        #pylint: disable=no-self-use,invalid-name
+        """Returns pyoai data tuple for list of records"""
+
+        # Get both a provider and client_id from the set
+        client_id = None
+        provider_id = None
+
+        # DataCite API deals in lowercase
+        if set_:
+            set_.lower()
+            if "." in set_:
+                provider_id, client_id = set_.split(".")
+            else:
+                provider_id = set_.lower()
+
+        results, paging_cursor = datacite.get_metadata_list(
+            provider_id=provider_id,
+            client_id=client_id,
+            from_datetime=from_,
+            until_datetime=until,
+            cursor=paging_cursor
+        )
+
+        records = []
+        if results:
+            for result in results:
+                # Build metadata based on requested format and result
+                metadata = {}
+                if metadataPrefix == "oai_dc":
+                    metadata = self.build_dc_metadata_map(result)
+
+                data = self.build_record(result, metadata)
+
+                records.append(data)
+
+        # This differs from the pyoai implementation in that we have to return a cursor here
+        # But this is okay as we have a custom server to handle it.
+        return records, paging_cursor
+
+    def build_record(self, result, metadata):
+        """Construct a OAI-PMH data payload for a record"""
 
         # Provider symbol can just be extracted from the client symbol
         provider_symbol, _ = result.client.split(".")
 
         data = (
             common.Header(
-                "something",
+                None,
                 'doi:' + result.identifier,
                 result.created_datetime,
                 setspec=[provider_symbol, result.client],
@@ -78,61 +130,6 @@ class DataCiteOAIServer():
         )
 
         return data
-
-    def listRecords(self, metadataPrefix=None, from_=None, until=None, set=None, cursor=None, paging_cursor=None):
-        #pylint: disable=no-self-use,invalid-name
-        """Returns pyoai data tuple for list of records"""
-
-        # Get both a provider and client_id from the set
-        client_id = None
-        provider_id = None
-
-        # DataCite API deals in lowercase
-        if set:
-            set.lower()
-            if "." in set:
-                provider_id, client_id = set.split(".")
-            else:
-                provider_id = set.lower()
-
-        results, paging_cursor = datacite.get_metadata_list(
-            provider_id=provider_id,
-            client_id=client_id,
-            from_datetime=from_,
-            until_datetime=until,
-            cursor=paging_cursor
-        )
-
-        records = []
-        if results:
-            for result in results:
-                metadata = {}
-                if metadataPrefix == "oai_dc":
-                    metadata = self.build_dc_metadata_map(result)
-
-                # Provider symbol can just be extracted from the client symbol
-                provider_symbol, _ = result.client.split(".")
-
-                data = (
-                    common.Header(
-                        "something",
-                        'doi:' + result.identifier,
-                        result.created_datetime,
-                        setspec=[provider_symbol, result.client],
-                        deleted=not result.active
-                    ),
-                    common.Metadata(
-                        None,
-                        metadata
-                    ),
-                    None # About string - not used
-                )
-
-                records.append(data)
-
-        # This differs from the pyoai implementation in that we have to return a cursor here
-        # But this is okay as we have a custom server to handle it.
-        return records, paging_cursor
 
     def build_dc_metadata_map(self, result):
         """Construct a metadata map object for DC writing"""

@@ -5,6 +5,7 @@ from viringo.services.datacite import Metadata
 
 
 class MetadataFactory(factory.Factory):
+    """Constructs test data for a Metadata result object"""
     class Meta:
         model = Metadata
 

@@ -48,7 +48,9 @@ def test_get_record_dc(client, mocker):
     # Set the mocked service to use the fake result
     mocked_get_metadata.return_value = result
 
-    response = client.get('/?verb=GetRecord&metadataPrefix=oai_dc&identifier=doi:10.5072/not-a-real-doi')
+    response = client.get(
+        '/?verb=GetRecord&metadataPrefix=oai_dc&identifier=doi:10.5072/not-a-real-doi'
+    )
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'

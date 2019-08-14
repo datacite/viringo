@@ -2,9 +2,9 @@
 
 import base64
 from datetime import datetime
+from urllib.parse import urlparse, parse_qs
 import dateutil.parser
 import dateutil.tz
-from urllib.parse import urlparse, parse_qs
 import requests
 
 #TODO: Move this to environment based variable
@@ -72,7 +72,8 @@ def build_result(data):
     created = dateutil.parser.parse(data['attributes']['created'])
     result.created_datetime = created.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
 
-    result.xml = base64.b64decode(data['attributes']['xml']) if data['attributes']['xml'] is not None else None
+    result.xml = base64.b64decode(data['attributes']['xml']) \
+        if data['attributes']['xml'] is not None else None
 
     result.titles = [
         title.get('title', '') for title in data['attributes']['titles']
@@ -103,8 +104,10 @@ def build_result(data):
     result.geo_locations = data['attributes'].get('geoLocations') or []
 
     result.resource_types = []
-    result.resource_types += [data['attributes']['types'].get('resourceTypeGeneral')] if data['attributes']['types'].get('resourceTypeGeneral') is not None else []
-    result.resource_types += [data['attributes']['types'].get('resourceType')] if data['attributes']['types'].get('resourceType') is not None else []
+    result.resource_types += [data['attributes']['types'].get('resourceTypeGeneral')] \
+        if data['attributes']['types'].get('resourceTypeGeneral') is not None else []
+    result.resource_types += [data['attributes']['types'].get('resourceType')] \
+        if data['attributes']['types'].get('resourceType') is not None else []
 
     result.formats = data['attributes'].get('formats') or []
 
@@ -161,7 +164,13 @@ def get_metadata(doi):
 
     return None
 
-def get_metadata_list(provider_id=None, client_id=None, from_datetime=None, until_datetime=None, cursor=None):
+def get_metadata_list(
+        provider_id=None,
+        client_id=None,
+        from_datetime=None,
+        until_datetime=None,
+        cursor=None
+    ):
     """Returns metadata in parsed metadata result from the DataCite API"""
 
     # Trigger cursor navigation with a starting value
@@ -173,7 +182,9 @@ def get_metadata_list(provider_id=None, client_id=None, from_datetime=None, unti
         until_datetime = datetime.now()
 
     # Construct a custom query for datetime filtering.
-    datetime_query = "updated:[{0}+TO+{1}]".format(from_datetime.isoformat(), until_datetime.isoformat())
+    datetime_query = "updated:[{0}+TO+{1}]".format(
+        from_datetime.isoformat(), until_datetime.isoformat()
+    )
 
     params = {
         'detail': True,
@@ -211,4 +222,3 @@ def get_metadata_list(provider_id=None, client_id=None, from_datetime=None, unti
         response.raise_for_status()
 
     return None
-
