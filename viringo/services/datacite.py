@@ -10,7 +10,7 @@ import requests
 #TODO: Move this to environment based variable
 API_URL = 'http://api.datacite.org'
 
-class DataCiteResult:
+class Metadata:
     """Represents a DataCite metadata resultset"""
     def __init__(
             self,
@@ -63,7 +63,7 @@ class DataCiteResult:
 
 def build_result(data):
     """Parse single json-api data dict into service result object"""
-    result = DataCiteResult()
+    result = Metadata()
 
     result.identifier = data.get('id')
 

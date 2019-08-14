@@ -42,7 +42,7 @@ def test_get_record_dc(client, mocker):
     # Mock the datacite service to ensure the same record data is returned.
     mocked_get_metadata = mocker.patch('viringo.services.datacite.get_metadata')
     # Get fake result
-    result = factories.DataCiteResultFactory()
+    result = factories.MetadataFactory()
     # Set the mocked service to use the fake result
     mocked_get_metadata.return_value = result
 

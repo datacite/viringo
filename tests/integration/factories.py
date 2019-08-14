@@ -1,12 +1,12 @@
 import datetime
 import factory
 
-from viringo.services.datacite import DataCiteResult
+from viringo.services.datacite import Metadata
 
 
-class DataCiteResultFactory(factory.Factory):
+class MetadataFactory(factory.Factory):
     class Meta:
-        model = DataCiteResult
+        model = Metadata
 
     identifier = '10.5072/not-a-real-doi'
     created_datetime = datetime.datetime(2018, 3, 17, 6, 33)
