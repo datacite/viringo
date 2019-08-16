@@ -78,11 +78,14 @@ class DataCiteOAIServer():
 
         # DataCite API deals in lowercase
         if set:
-            set.lower()
-            if "." in set:
-                provider_id, client_id = set.split(".")
+            # The rename to set_ is because it makes me nervous potentially
+            # overwriting the inbuilt python set.
+            set_ = set.lower()
+            if "." in set_:
+                provider_id, _ = set_.split(".")
+                client_id = set_
             else:
-                provider_id = set.lower()
+                provider_id = set_
 
         results, paging_cursor = datacite.get_metadata_list(
             provider_id=provider_id,

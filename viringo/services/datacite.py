@@ -196,6 +196,8 @@ def get_metadata_list(
         'page[cursor]': cursor
     }
 
+    print(params)
+
     if datetime_query:
         params['query'] = datetime_query
 
@@ -203,6 +205,7 @@ def get_metadata_list(
     # to avoid direct urlencoding by requests library which messes up some of the params
     payload_str = "&".join("%s=%s" % (k, v) for k, v in params.items() if v is not None)
 
+    print(payload_str)
     response = requests.get(API_URL + '/dois', params=payload_str)
 
     if response.status_code == 200:
@@ -212,8 +215,12 @@ def get_metadata_list(
             return None, None
 
         # Grab out the cursor bit from the full next link
-        query = parse_qs(urlparse(json['links']['next']).query)
-        cursor = query['page[cursor]'][0] # It comes back as a list but only ever one value
+        next_link = json['links'].get('next')
+        if next_link:
+            query = parse_qs(urlparse(json['links']['next']).query)
+            cursor = query['page[cursor]'][0] # It comes back as a list but only ever one value
+        else:
+            cursor = 0
 
         data = json['data']
         results = []
