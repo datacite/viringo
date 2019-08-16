@@ -72,7 +72,7 @@ def get_oai_server():
 
     return g.oai
 
-@BP.route('/')
+@BP.route('/', methods=['GET', 'POST'])
 def index():
     """Root OAIPMH request handler"""
 

@@ -105,7 +105,6 @@ def test_list_records_dc(client, mocker):
     # Compare the main part of the request against test case
     assert original == target
 
-
 def test_list_identifiers(client, mocker):
     """Test the listIdentifiers verb responds and conforms as expected"""
 
@@ -137,3 +136,15 @@ def test_list_identifiers(client, mocker):
 
     # Compare the main part of the request against test case
     assert original == target
+
+def test_responds_to_get_post(client):
+    """Test OAI responds on both GET and POST method requests as per OAI spec"""
+    response = client.get('/')
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/xml; charset=utf-8'
+
+    response = client.post('/')
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/xml; charset=utf-8'
