@@ -1,0 +1,597 @@
+{
+    "data": [
+        {
+            "id": "datacite.axiom",
+            "type": "clients",
+            "attributes": {
+                "name": "Axiom Data Science",
+                "symbol": "DATACITE.AXIOM",
+                "year": 2017,
+                "contactEmail": "ross@axiomdatascience.com",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2017-05-24T09:27:45.000Z",
+                "updated": "2019-01-16T10:18:46.000Z",
+                "isActive": true,
+                "hasPassword": true
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": []
+                }
+            }
+        },
+        {
+            "id": "datacite.datacite",
+            "type": "clients",
+            "attributes": {
+                "name": "DataCite",
+                "symbol": "DATACITE.DATACITE",
+                "year": 2011,
+                "contactEmail": "support@datacite.org",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2011-12-07T13:43:39.000Z",
+                "updated": "2019-02-19T22:32:45.000Z",
+                "isActive": true,
+                "hasPassword": true
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": [
+                        {
+                            "id": "10.14454",
+                            "type": "prefixes"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "datacite.blog",
+            "type": "clients",
+            "attributes": {
+                "name": "DataCite Blog",
+                "symbol": "DATACITE.BLOG",
+                "year": 2019,
+                "contactEmail": "info@datacite.org",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": "https://blog.datacite.org",
+                "created": "2019-01-02T14:27:23.000Z",
+                "updated": "2019-01-02T17:22:42.000Z",
+                "isActive": true,
+                "hasPassword": true
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": [
+                        {
+                            "id": "10.5438",
+                            "type": "prefixes"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "datacite.transfer",
+            "type": "clients",
+            "attributes": {
+                "name": "DOI Transfer Client",
+                "symbol": "DATACITE.TRANSFER",
+                "year": 2018,
+                "contactEmail": "info@datacite.org",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2018-10-13T22:30:40.000Z",
+                "updated": "2019-02-19T22:33:21.000Z",
+                "isActive": true,
+                "hasPassword": false
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": []
+                }
+            }
+        },
+        {
+            "id": "datacite.force11",
+            "type": "clients",
+            "attributes": {
+                "name": "Force11",
+                "symbol": "DATACITE.FORCE11",
+                "year": 2017,
+                "contactEmail": "tim_clark@harvard.edu",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2017-08-04T20:48:54.000Z",
+                "updated": "2018-08-26T02:35:56.000Z",
+                "isActive": true,
+                "hasPassword": false
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": [
+                        {
+                            "id": "10.25490",
+                            "type": "prefixes"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "datacite.gtex",
+            "type": "clients",
+            "attributes": {
+                "name": "GTEx",
+                "symbol": "DATACITE.GTEX",
+                "year": 2018,
+                "contactEmail": "mfenner@datacite.org",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2018-05-03T20:29:55.000Z",
+                "updated": "2018-08-26T02:36:08.000Z",
+                "isActive": true,
+                "hasPassword": true
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": [
+                        {
+                            "id": "10.25491",
+                            "type": "prefixes"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "datacite.lare",
+            "type": "clients",
+            "attributes": {
+                "name": "LA Referencia",
+                "symbol": "DATACITE.LARE",
+                "year": 2018,
+                "contactEmail": "alberto.cabezas@redclara.net",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2018-03-08T16:19:38.000Z",
+                "updated": "2018-08-26T02:36:04.000Z",
+                "isActive": true,
+                "hasPassword": false
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": []
+                }
+            }
+        },
+        {
+            "id": "datacite.neg",
+            "type": "clients",
+            "attributes": {
+                "name": "NASA Earthdata Group",
+                "symbol": "DATACITE.NEG",
+                "year": 2018,
+                "contactEmail": "awarnock@sesda3.com",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2018-03-08T12:48:39.000Z",
+                "updated": "2018-08-26T02:36:04.000Z",
+                "isActive": true,
+                "hasPassword": true
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": []
+                }
+            }
+        },
+        {
+            "id": "datacite.dcppc",
+            "type": "clients",
+            "attributes": {
+                "name": "NIH Data Commons Pilot Phase Consortium",
+                "symbol": "DATACITE.DCPPC",
+                "year": 2018,
+                "contactEmail": "mal8ch@virginia.edu",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2018-01-03T16:24:27.000Z",
+                "updated": "2018-08-26T02:36:00.000Z",
+                "isActive": true,
+                "hasPassword": true
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": [
+                        {
+                            "id": "10.25489",
+                            "type": "prefixes"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "datacite.becker",
+            "type": "clients",
+            "attributes": {
+                "name": "Pascal Becker",
+                "symbol": "DATACITE.BECKER",
+                "year": 2018,
+                "contactEmail": "pascal@the-library-code.de",
+                "alternateName": null,
+                "description": null,
+                "language": [],
+                "clientType": "repository",
+                "domains": "*",
+                "issn": null,
+                "url": null,
+                "created": "2018-03-29T10:30:29.000Z",
+                "updated": "2018-08-26T02:36:05.000Z",
+                "isActive": true,
+                "hasPassword": true
+            },
+            "relationships": {
+                "provider": {
+                    "data": {
+                        "id": "datacite",
+                        "type": "providers"
+                    }
+                },
+                "prefixes": {
+                    "data": []
+                }
+            }
+        }
+    ],
+    "included": [
+        {
+            "id": "datacite",
+            "type": "providers",
+            "attributes": {
+                "name": "DataCite",
+                "displayName": "DataCite",
+                "symbol": "DATACITE",
+                "website": "https://datacite.org",
+                "systemEmail": "info@datacite.org",
+                "groupEmail": "info@datacite.org",
+                "description": null,
+                "region": "EMEA",
+                "country": "DE",
+                "logoUrl": null,
+                "memberType": "direct_member",
+                "organizationType": "serviceProvider",
+                "focusArea": "general",
+                "nonProfitStatus": null,
+                "isActive": true,
+                "hasPassword": true,
+                "joined": null,
+                "rorId": "https://ror.org/04wxnsj81",
+                "technicalContact": {
+                    "email": "martin.fenner@datacite.org",
+                    "givenName": "Martin",
+                    "familyName": "Fenner"
+                },
+                "secondaryTechnicalContact": {},
+                "billingContact": {
+                    "email": "britta.dreyer@datacite.org",
+                    "givenName": "Britta ",
+                    "familyName": "Dreyer"
+                },
+                "secondaryBillingContact": {
+                    "email": "patricia.cruse@datacite.org",
+                    "givenName": "Patricia",
+                    "familyName": "Cruse"
+                },
+                "serviceContact": {
+                    "email": "mary.hirsch@datacite.org",
+                    "givenName": "Mary",
+                    "familyName": "Hirsch"
+                },
+                "secondaryServiceContact": {
+                    "email": "britta.dreyer@datacite.org",
+                    "givenName": "Britta",
+                    "familyName": "Dreyer"
+                },
+                "votingContact": {},
+                "created": "2011-12-07T13:41:07.000Z",
+                "updated": "2019-07-09T17:34:39.000Z"
+            },
+            "relationships": {
+                "clients": {
+                    "data": [
+                        {
+                            "id": "datacite.datacite",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.rda",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.axiom",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.force11",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.dcppc",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.sbn",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.ucsc",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.neg",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.lare",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.becker",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.gtex",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.topmed",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.transfer",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.marytest",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.blog",
+                            "type": "clients"
+                        },
+                        {
+                            "id": "datacite.services",
+                            "type": "clients"
+                        }
+                    ]
+                },
+                "prefixes": {
+                    "data": [
+                        {
+                            "id": "10.5438",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.14454",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.15497",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.23725",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.24432",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25492",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25491",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25490",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25496",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25495",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25494",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25489",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25497",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.25498",
+                            "type": "prefixes"
+                        },
+                        {
+                            "id": "10.2899",
+                            "type": "prefixes"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "meta": {
+        "total": 16,
+        "totalPages": 2,
+        "page": 1,
+        "years": [
+            {
+                "id": "2011",
+                "title": "2011",
+                "count": 1
+            },
+            {
+                "id": "2014",
+                "title": "2014",
+                "count": 1
+            },
+            {
+                "id": "2017",
+                "title": "2017",
+                "count": 2
+            },
+            {
+                "id": "2018",
+                "title": "2018",
+                "count": 10
+            },
+            {
+                "id": "2019",
+                "title": "2019",
+                "count": 2
+            }
+        ],
+        "providers": [
+            {
+                "id": "datacite",
+                "title": "DataCite",
+                "count": 16
+            }
+        ],
+        "software": [
+            {
+                "id": "other",
+                "title": "Other",
+                "count": 1
+            }
+        ],
+        "certificates": [],
+        "repository_types": [],
+        "clientTypes": [
+            {
+                "id": "repository",
+                "title": "Repository",
+                "count": 16
+            }
+        ]
+    },
+    "links": {
+        "self": "https://api.datacite.org/clients?page[size]=10&provider_id=datacite",
+        "next": "https://api.datacite.org/clients?page%5Bnumber%5D=2&page%5Bsize%5D=10&provider-id=datacite"
+    }
+}

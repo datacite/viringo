@@ -61,8 +61,8 @@ class Metadata:
         self.client = client
         self.active = active
 
-def build_result(data):
-    """Parse single json-api data dict into service result object"""
+def build_metadata(data):
+    """Parse single json-api data dict into metadata object"""
     result = Metadata()
 
     result.identifier = data.get('id')
@@ -158,7 +158,7 @@ def get_metadata(doi):
     response = requests.get(API_URL + '/dois/' + doi)
     if response.status_code == 200:
         data = response.json()['data']
-        return build_result(data)
+        return build_metadata(data)
     else:
         response.raise_for_status()
 
@@ -222,7 +222,7 @@ def get_metadata_list(
         data = json['data']
         results = []
         for doi_entry in data:
-            result = build_result(doi_entry)
+            result = build_metadata(doi_entry)
             results.append(result)
 
         return results, cursor
@@ -230,3 +230,34 @@ def get_metadata_list(
         response.raise_for_status()
 
     return None
+
+def get_sets():
+    """Returns sets that can be used for further sub dividing results"""
+
+    params = {
+        'page[size]': 1000,
+    }
+
+    response = requests.get(API_URL + '/clients', params)
+
+    if response.status_code == 200:
+        json = response.json()
+
+        if json['meta']['total'] == 0:
+            return None
+
+        data = json['data'] # clients
+        included = json['included'] # providers
+
+        results = {}
+        for entry in data:
+            if entry['id'] not in results:
+                results[entry['id']] = entry['attributes']['name']
+
+        for entry in included:
+            if entry['id'] not in results:
+                results[entry['id']] = entry['attributes']['name']
+
+        return results
+    else:
+        response.raise_for_status()
