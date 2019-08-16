@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="xsl/oaitohtml.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2019-08-16T11:56:07Z</responseDate>
+  <request verb="ListIdentifiers" metadataPrefix="oai_dc" set="DATACITE.DATACITE">https://oai.datacite.org/oai</request>
+  <ListIdentifiers>
+    <header>
+      <identifier>doi:10.5072/not-a-real-doi</identifier>
+      <datestamp>2018-03-17T06:33:00Z</datestamp>
+      <setSpec>DATACITE</setSpec>
+      <setSpec>DATACITE.DATACITE</setSpec>
+    </header>
+    <header>
+      <identifier>doi:10.5072/not-a-real-doi-2</identifier>
+      <datestamp>2018-05-17T06:33:00Z</datestamp>
+      <setSpec>DATACITE</setSpec>
+      <setSpec>DATACITE.DATACITE</setSpec>
+    </header>
+    <resumptionToken>metadataPrefix%3Doai_dc%26set%3DDATACITE.DATACITE%26paging_cursor%3D1%26cursor%3DNone</resumptionToken>
+  </ListIdentifiers>
+</OAI-PMH>

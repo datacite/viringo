@@ -104,3 +104,36 @@ def test_list_records_dc(client, mocker):
 
     # Compare the main part of the request against test case
     assert original == target
+
+
+def test_list_identifiers(client, mocker):
+    """Test the listIdentifiers verb responds and conforms as expected"""
+
+    # Mock the datacite service to ensure the same record data is returned.
+    mocked_get_metadata_list = mocker.patch('viringo.services.datacite.get_metadata_list')
+
+    # Get fake results
+    result_1 = factories.MetadataFactory()
+    result_2 = factories.MetadataFactory(
+        identifier="10.5072/not-a-real-doi-2",
+        created_datetime=datetime.datetime(2018, 5, 17, 6, 33),
+    )
+    results = [result_1, result_2], 1
+
+    # Set the mocked service to use the fake result
+    mocked_get_metadata_list.return_value = results
+
+    response = client.get('/?verb=ListIdentifiers&metadataPrefix=oai_dc&set=DATACITE.DATACITE')
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/xml; charset=utf-8'
+
+    # Compare just the verb part of the oai xml
+    original, target = construct_oai_xml_comparisons(
+        'tests/integration/fixtures/oai_listidentifiers.xml',
+        response.get_data(),
+        "ListIdentifiers"
+    )
+
+    # Compare the main part of the request against test case
+    assert original == target

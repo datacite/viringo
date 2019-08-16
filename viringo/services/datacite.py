@@ -196,8 +196,6 @@ def get_metadata_list(
         'page[cursor]': cursor
     }
 
-    print(params)
-
     if datetime_query:
         params['query'] = datetime_query
 
@@ -205,7 +203,6 @@ def get_metadata_list(
     # to avoid direct urlencoding by requests library which messes up some of the params
     payload_str = "&".join("%s=%s" % (k, v) for k, v in params.items() if v is not None)
 
-    print(payload_str)
     response = requests.get(API_URL + '/dois', params=payload_str)
 
     if response.status_code == 200:
