@@ -66,7 +66,7 @@ class DataCiteOAIServer():
             metadataPrefix=None,
             from_=None,
             until=None,
-            set_=None,
+            set=None,
             paging_cursor=None
         ):
         #pylint: disable=no-self-use,invalid-name
@@ -77,12 +77,12 @@ class DataCiteOAIServer():
         provider_id = None
 
         # DataCite API deals in lowercase
-        if set_:
-            set_.lower()
-            if "." in set_:
-                provider_id, client_id = set_.split(".")
+        if set:
+            set.lower()
+            if "." in set:
+                provider_id, client_id = set.split(".")
             else:
-                provider_id = set_.lower()
+                provider_id = set.lower()
 
         results, paging_cursor = datacite.get_metadata_list(
             provider_id=provider_id,

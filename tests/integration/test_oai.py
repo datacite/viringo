@@ -90,7 +90,7 @@ def test_list_records_dc(client, mocker):
     # Set the mocked service to use the fake result
     mocked_get_metadata_list.return_value = results
 
-    response = client.get('/?verb=ListRecords&metadataPrefix=oai_dc')
+    response = client.get('/?verb=ListRecords&metadataPrefix=oai_dc&set=DATACITE.DATACITE')
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
