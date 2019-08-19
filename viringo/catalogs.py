@@ -7,6 +7,7 @@ pyoai library.
 from datetime import datetime
 from oaipmh import common, error
 
+from viringo import config
 from .services import datacite
 
 class DataCiteOAIServer():
@@ -15,10 +16,10 @@ class DataCiteOAIServer():
         """Construct common identification for the OAI service"""
 
         identify = common.Identify(
-            repositoryName='DataCite',
-            baseURL='https://oai.datacite.org/oai',
+            repositoryName=config.OAIPMH_REPOS_NAME,
+            baseURL=config.OAIPMH_BASE_URL,
             protocolVersion="2.0",
-            adminEmails=['support@datacite.org'],
+            adminEmails=[config.OAIPMH_ADMIN_EMAIL],
             earliestDatestamp=datetime(2011, 1, 1),
             deletedRecord='persistent',
             granularity='YYYY-MM-DDThh:mm:ssZ',
