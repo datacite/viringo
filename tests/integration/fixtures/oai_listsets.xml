@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="xsl/oaitohtml.xsl"?>
+<?xml-stylesheet type="text/xsl" href="xsl/oaitohtml.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2019-08-16T13:07:06Z</responseDate>
+  <request verb="ListSets">https://oai.datacite.org/oai</request>
+  <ListSets>
+    <set>
+      <setSpec>DATACITE</setSpec>
+      <setName>DataCite</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.AXIOM</setSpec>
+      <setName>Axiom Data Science</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.BECKER</setSpec>
+      <setName>Pascal Becker</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.BLOG</setSpec>
+      <setName>DataCite Blog</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.DATACITE</setSpec>
+      <setName>DataCite</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.DCPPC</setSpec>
+      <setName>NIH Data Commons Pilot Phase Consortium</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.FORCE11</setSpec>
+      <setName>Force11</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.GTEX</setSpec>
+      <setName>GTEx</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.LARE</setSpec>
+      <setName>LA Referencia</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.NEG</setSpec>
+      <setName>NASA Earthdata Group</setName>
+    </set>
+    <set>
+      <setSpec>DATACITE.TRANSFER</setSpec>
+      <setName>DOI Transfer Client</setName>
+    </set>
+    <resumptionToken />
+  </ListSets>
+</OAI-PMH>

@@ -145,6 +145,40 @@ class DataCiteOAIServer():
         # But this is okay as we have a custom server to handle it.
         return records, paging_cursor
 
+    def listSets(
+            self,
+            paging_cursor=0
+        ):
+        #pylint: disable=no-self-use,invalid-name
+        """Returns pyoai data tuple for list of sets"""
+
+        # Note this implementation is not super efficient as we request
+        # the full set everytime regardles of actual paging
+        # The paging is handled just by offsetting the records returned.
+        # This is however acceptable given sets are a small subset of data.
+
+        # We know we're always dealing with a integer value here
+        paging_cursor = int(paging_cursor)
+
+        batch_size = 50
+        next_batch = paging_cursor + batch_size
+        results = datacite.get_sets()[paging_cursor: next_batch]
+
+        if len(results) < batch_size:
+            paging_cursor = None
+        else:
+            paging_cursor = next_batch
+
+        records = []
+        if results:
+            for identifier, name in results:
+                # Format of a set is setSpec, setName, setDescription
+                records.append((identifier.upper(), name, None))
+
+        # This differs from the pyoai implementation in that we have to return a cursor here
+        # But this is okay as we have a custom server to handle it.
+        return records, paging_cursor
+
     def build_header(self, result):
         """Construct a OAI-PMH record header"""
 
