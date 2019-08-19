@@ -12,6 +12,7 @@ def test_get_metadata_list():
     pass
 
 def test_get_sets(mocker):
+    """Tests the results of the datasite service for getting a list of sets"""
     # Mock the datacite service to ensure the same record data is returned.
     mocked_requests_get = mocker.patch('viringo.services.datacite.requests.get')
 
@@ -23,6 +24,18 @@ def test_get_sets(mocker):
     mocked_requests_get.return_value.json.return_value = data
 
     sets = datacite.get_sets()
-    expected_sets = {'datacite.axiom': 'Axiom Data Science', 'datacite.datacite': 'DataCite', 'datacite.blog': 'DataCite Blog', 'datacite.transfer': 'DOI Transfer Client', 'datacite.force11': 'Force11', 'datacite.gtex': 'GTEx', 'datacite.lare': 'LA Referencia', 'datacite.neg': 'NASA Earthdata Group', 'datacite.dcppc': 'NIH Data Commons Pilot Phase Consortium', 'datacite.becker': 'Pascal Becker', 'datacite': 'DataCite'}
+    expected_sets = [
+        ('datacite', 'DataCite'),
+        ('datacite.axiom', 'Axiom Data Science'),
+        ('datacite.becker', 'Pascal Becker'),
+        ('datacite.blog', 'DataCite Blog'),
+        ('datacite.datacite', 'DataCite'),
+        ('datacite.dcppc', 'NIH Data Commons Pilot Phase Consortium'),
+        ('datacite.force11', 'Force11'),
+        ('datacite.gtex', 'GTEx'),
+        ('datacite.lare', 'LA Referencia'),
+        ('datacite.neg', 'NASA Earthdata Group'),
+        ('datacite.transfer', 'DOI Transfer Client')
+    ]
 
     assert sets == expected_sets

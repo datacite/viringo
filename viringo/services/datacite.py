@@ -3,6 +3,7 @@
 import base64
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
+from operator import itemgetter
 import dateutil.parser
 import dateutil.tz
 import requests
@@ -249,14 +250,17 @@ def get_sets():
         data = json['data'] # clients
         included = json['included'] # providers
 
-        results = {}
+        results = []
         for entry in data:
             if entry['id'] not in results:
-                results[entry['id']] = entry['attributes']['name']
+                results.append((entry['id'], entry['attributes']['name']))
 
         for entry in included:
             if entry['id'] not in results:
-                results[entry['id']] = entry['attributes']['name']
+                results.append((entry['id'], entry['attributes']['name']))
+
+        # Sort the results, this should be relativly fast given sets tend to be a small subset.
+        results.sort(key=itemgetter(0))
 
         return results
     else:
