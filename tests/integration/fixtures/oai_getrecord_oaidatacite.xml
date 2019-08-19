@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="xsl/oaitohtml.xsl"?>
+<?xml-stylesheet type="text/xsl" href="xsl/oaitohtml.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2019-07-03T08:20:32Z</responseDate>
+  <request identifier="oai:oai.datacite.org:14487796" metadataPrefix="oai_dc" verb="GetRecord">https://oai.datacite.org/oai</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>doi:10.5072/not-a-real-doi</identifier>
+        <datestamp>2018-03-17T06:33:00Z</datestamp>
+        <setSpec>DATACITE</setSpec>
+        <setSpec>DATACITE.DATACITE</setSpec>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4</schemaVersion>
+          <datacentreSymbol>DATACITE.DATACITE</datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4     http://schema.datacite.org/meta/kernel-4/metadata.xsd">
+    <identifier identifierType="DOI">10.5072/not-a-real-doi</identifier>
+    <creators>
+        <creator>
+            <creatorName nameType="Personal">Fenner, Martin</creatorName>
+            <givenName>Martin</givenName>
+            <familyName>Fenner</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="https://orcid.org">
+            https://orcid.org/0000-0003-1419-2405</nameIdentifier>
+            <affiliation affiliationIdentifier="https://ror.org/04wxnsj81" affiliationIdentifierScheme="ROR">DataCite
+            </affiliation>
+        </creator>
+        <creator>
+            <creatorName nameType="Personal">Hallett, Richard</creatorName>
+            <givenName>Richard</givenName>
+            <familyName>Hallett</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="https://orcid.org">
+            https://orcid.org/0000-0002-8599-0773</nameIdentifier>
+            <affiliation affiliationIdentifier="https://ror.org/04wxnsj81" affiliationIdentifierScheme="ROR">DataCite
+            </affiliation>
+        </creator>
+    </creators>
+    <titles>
+      <title>This is a fake DOI with fake metadata.</title>
+    </titles>
+    <publisher>DataCite</publisher>
+    <publicationYear>2018</publicationYear>
+    <resourceType resourceTypeGeneral="Text">BlogPosting</resourceType>
+    <subjects><subject>datacite</subject></subjects>
+    <dates>
+      <date dateType="Issued">2018-01-18</date>
+      <date dateType="Created">2018-01-18</date>
+      <date dateType="Updated">2018-01-18</date>
+    </dates>
+    <relatedIdentifiers>
+      <relatedIdentifier relatedIdentifierType="DOI" relationType="IsPartOf" resourceTypeGeneral="Text">10.5072/related-not-a-real-doi</relatedIdentifier>
+    </relatedIdentifiers>
+    <version>1.0</version>
+    <rightsList>
+      <rights/>
+    </rightsList>
+    <descriptions>
+      <description descriptionType="Abstract">This is a fake DOI with fake metadata.</description>
+    </descriptions>
+    <geoLocations>
+      <geoLocation/>
+    </geoLocations>
+    </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>

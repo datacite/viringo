@@ -70,6 +70,33 @@ def test_get_record_dc(client, mocker):
     # Compare the main part of the request against test case
     assert original == target
 
+def test_get_record_oai_datacite(client, mocker):
+    """Test the getRecord verb responds and conforms as expected in oai_datacite format"""
+
+    # Mock the datacite service to ensure the same record data is returned.
+    mocked_get_metadata = mocker.patch('viringo.services.datacite.get_metadata')
+    # Get fake result
+    result = factories.MetadataFactory()
+    # Set the mocked service to use the fake result
+    mocked_get_metadata.return_value = result
+
+    response = client.get(
+        '/?verb=GetRecord&metadataPrefix=oai_datacite&identifier=doi:10.5072/not-a-real-doi'
+    )
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/xml; charset=utf-8'
+
+    # Compare just the verb part of the oai xml
+    original, target = construct_oai_xml_comparisons(
+        'tests/integration/fixtures/oai_getrecord_oaidatacite.xml',
+        response.get_data(),
+        "GetRecord"
+    )
+
+    # Compare the main part of the request against test case
+    assert original == target
+
 def test_get_record_datacite(client, mocker):
     """Test the getRecord verb responds and conforms as expected in datacite format"""
 

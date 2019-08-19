@@ -6,6 +6,7 @@ NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
 NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 NS_OAIDC = 'http://www.openarchives.org/OAI/2.0/oai_dc/'
 NS_DC = "http://purl.org/dc/elements/1.1/"
+OAI_DATACITE_NS="http://schema.datacite.org/oai/oai-1.1/"
 
 def oai_dc_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into DC format"""
@@ -51,3 +52,31 @@ def datacite_writer(element: etree.Element, metadata):
     xml_resource_element = etree.fromstring(raw_xml)
 
     element.append(xml_resource_element)
+
+def oai_datacite_writer(element: etree.Element, metadata):
+    """Writer for writing data in a metadata object out into raw datacite format"""
+    _map = metadata.getMap()
+    raw_xml = _map.get('xml', '')
+    xml_resource_element = etree.fromstring(raw_xml)
+
+    e_oai_datacite = etree.SubElement(
+        element, "oai_datacite", {'xmlns': 'http://schema.datacite.org/oai/oai-1.1/'},
+        nsmap={'xsi': NS_XSI}
+    )
+
+    e_oai_datacite.set(
+        '{%s}schemaLocation' % NS_XSI, 'http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd'
+    )
+
+    # Extract the schema version from the default namespace of the root resource element.
+    full_schema = xml_resource_element.nsmap[None]
+    schema_version = full_schema.split("http://datacite.org/schema/kernel-",1)[1]
+
+    e_schema_version = etree.SubElement(e_oai_datacite, 'schemaVersion')
+    e_schema_version.text = str(schema_version)
+    e_symbol = etree.SubElement(e_oai_datacite, 'datacentreSymbol')
+    e_symbol.text = _map.get('set', '')
+
+    e_payload = etree.SubElement(e_oai_datacite, 'payload')
+
+    e_payload.append(xml_resource_element)
