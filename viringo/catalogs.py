@@ -53,9 +53,7 @@ class DataCiteOAIServer():
             )
 
         # Build metadata based on requested format and result
-        metadata = {}
-        if metadataPrefix == "oai_dc":
-            metadata = self.build_dc_metadata_map(result)
+        metadata = self.build_metadata_map(result)
 
         header = self.build_header(result)
         record = self.build_record(metadata)
@@ -93,9 +91,7 @@ class DataCiteOAIServer():
         if results:
             for result in results:
                 # Build metadata based on requested format and result
-                metadata = {}
-                if metadataPrefix == "oai_dc":
-                    metadata = self.build_dc_metadata_map(result)
+                metadata = self.build_metadata_map(result)
 
                 header = self.build_header(result)
                 record = self.build_record(metadata)
@@ -201,8 +197,8 @@ class DataCiteOAIServer():
             metadata
         )
 
-    def build_dc_metadata_map(self, result):
-        """Construct a metadata map object for DC writing"""
+    def build_metadata_map(self, result):
+        """Construct a metadata map object for oai metadata writing"""
         dates = []
         if result.publication_year:
             dates.append(str(result.publication_year))
@@ -242,6 +238,7 @@ class DataCiteOAIServer():
             'relation': relations,
             'language': [result.language] if result.language else [],
             'rights': rights,
+            'xml': result.xml
         }
 
         return metadata

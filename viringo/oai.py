@@ -66,6 +66,7 @@ def get_oai_server():
 
         metadata_registry = oaipmh.metadata.MetadataRegistry()
         metadata_registry.registerWriter('oai_dc', metadata.oai_dc_writer)
+        metadata_registry.registerWriter('datacite', metadata.datacite_writer)
         oai = Server(catalog_server, metadata_registry)
 
         g.oai = oai

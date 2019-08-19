@@ -16,8 +16,13 @@ def construct_oai_xml_comparisons(fixture_file_path, target_xml, oai_element):
     response_et = etree.fromstring(target_xml)
     metadata_b = response_et.find("./{http://www.openarchives.org/OAI/2.0/}" + oai_element)
 
-    original = etree.tostring(metadata_a, encoding='unicode')
-    target = etree.tostring(metadata_b, encoding='unicode')
+    original = ''
+    target = ''
+    if metadata_a is not None:
+        original = etree.tostring(metadata_a, encoding='unicode', pretty_print=True)
+
+    if metadata_b is not None:
+        target = etree.tostring(metadata_b, encoding='unicode', pretty_print=True)
 
     return original, target
 
@@ -39,7 +44,7 @@ def test_identify(client):
     assert original == target
 
 def test_get_record_dc(client, mocker):
-    """Test the getRecord verb responds and conforms as expected"""
+    """Test the getRecord verb responds and conforms as expected in dc format"""
 
     # Mock the datacite service to ensure the same record data is returned.
     mocked_get_metadata = mocker.patch('viringo.services.datacite.get_metadata')
@@ -58,6 +63,33 @@ def test_get_record_dc(client, mocker):
     # Compare just the verb part of the oai xml
     original, target = construct_oai_xml_comparisons(
         'tests/integration/fixtures/oai_getrecord_dc.xml',
+        response.get_data(),
+        "GetRecord"
+    )
+
+    # Compare the main part of the request against test case
+    assert original == target
+
+def test_get_record_datacite(client, mocker):
+    """Test the getRecord verb responds and conforms as expected in datacite format"""
+
+    # Mock the datacite service to ensure the same record data is returned.
+    mocked_get_metadata = mocker.patch('viringo.services.datacite.get_metadata')
+    # Get fake result
+    result = factories.MetadataFactory()
+    # Set the mocked service to use the fake result
+    mocked_get_metadata.return_value = result
+
+    response = client.get(
+        '/?verb=GetRecord&metadataPrefix=datacite&identifier=doi:10.5072/not-a-real-doi'
+    )
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/xml; charset=utf-8'
+
+    # Compare just the verb part of the oai xml
+    original, target = construct_oai_xml_comparisons(
+        'tests/integration/fixtures/oai_getrecord_datacite.xml',
         response.get_data(),
         "GetRecord"
     )
