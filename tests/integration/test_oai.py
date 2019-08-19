@@ -235,6 +235,23 @@ def test_list_sets(client, mocker):
     # Compare the main part of the request against test case
     assert original == target
 
+def test_list_metadata_formats(client):
+    """Test the identify verb responds and conforms as expected"""
+    response = client.get('/?verb=ListMetadataFormats')
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/xml; charset=utf-8'
+
+    # Compare just the verb part of the oai xml
+    original, target = construct_oai_xml_comparisons(
+        'tests/integration/fixtures/oai_listmetadataformats.xml',
+        response.get_data(),
+        "ListMetadataFormats"
+    )
+
+    # Compare the main part of the request against test case
+    assert original == target
+
 def test_responds_to_get_post(client):
     """Test OAI responds on both GET and POST method requests as per OAI spec"""
     response = client.get('/')

@@ -39,6 +39,33 @@ class DataCiteOAIServer():
 
         return identify
 
+    def listMetadataFormats(self, identifier=None):
+        """Returns metadata formats available for the repository
+
+        Identifier does nothing as our repository responds in all formats for all dois
+        """
+        # PyOAI Expects result format (metadataPrefix, schema, metadataNamespace)
+
+        format_oai_dc = (
+            'oai_dc',
+            'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+            'http://www.openarchives.org/OAI/2.0/oai_dc/'
+        )
+
+        format_oai_datacite = (
+            'oai_datacite',
+            'http://schema.datacite.org/oai/oai-1.1/oai.xsd',
+            'http://schema.datacite.org/oai/oai-1.1/'
+        )
+
+        format_datacite = (
+            'datacite',
+            'http://schema.datacite.org/meta/nonexistant/nonexistant.xsd',
+            'http://datacite.org/schema/nonexistant'
+        )
+
+        return [format_oai_dc, format_oai_datacite, format_datacite]
+
     def getRecord(self, metadataPrefix, identifier):
         #pylint: disable=no-self-use,invalid-name
         """Returns pyoai data tuple for specific record"""
