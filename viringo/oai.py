@@ -46,9 +46,9 @@ class Resumption(oaipmh.common.ResumptionOAIPMH):
 
             # When a cursor exists more results can be resumed, otherwise it's the end.
             if resume_cursor:
-                # Always pass 1 as the cursor because we handle cursor
-                # navigation via the paging_cursor
-                token = oaipmh.server.encodeResumptionToken(kw, cursor=None)
+                # Always pass 1 as the underlying code expects something
+                # and we handle our own pagination using our paging_cursor instead
+                token = oaipmh.server.encodeResumptionToken(kw, cursor=1)
             else:
                 token = "" # Provide a blank token as per oaipmh spec
 
