@@ -164,6 +164,7 @@ def get_metadata(doi):
     return None
 
 def get_metadata_list(
+        query=None,
         provider_id=None,
         client_id=None,
         from_datetime=None,
@@ -183,7 +184,7 @@ def get_metadata_list(
     # Construct a custom query for datetime filtering.
     datetime_query = ''
     if from_datetime and until_datetime:
-        datetime_query = "updated:[{0}+TO+{1}]".format(
+        datetime_query = "created:[{0}+TO+{1}]".format(
             from_datetime.isoformat(), until_datetime.isoformat()
         )
 
@@ -196,7 +197,13 @@ def get_metadata_list(
     }
 
     if datetime_query:
-        params['query'] = datetime_query
+        if query:
+            query = query + " AND " + datetime_query
+        else:
+            query = datetime_query
+
+    if query:
+        params['query'] = query
 
     # Construct the payload as a string
     # to avoid direct urlencoding by requests library which messes up some of the params

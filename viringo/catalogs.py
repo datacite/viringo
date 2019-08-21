@@ -4,6 +4,7 @@ They conform to the oaipmh.common.ResumptionOAIPMH interface provided by the
 pyoai library.
 """
 
+import base64
 from datetime import datetime
 from oaipmh import common, error
 
@@ -104,10 +105,14 @@ class DataCiteOAIServer():
         #pylint: disable=no-self-use,invalid-name
         """Returns pyoai data tuple for list of records"""
 
+        # If available get the search query from the set param
+        search_query = set_to_search_query(set)
+
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
 
         results, paging_cursor = datacite.get_metadata_list(
+            query=search_query,
             provider_id=provider_id,
             client_id=client_id,
             from_datetime=from_,
@@ -272,12 +277,26 @@ class DataCiteOAIServer():
 
         return metadata
 
+def set_to_search_query(unparsed_set):
+    """Take a oai set and extract any base64url encoded search query"""
+
+    if "~" in unparsed_set:
+        _, search_query_base64 = unparsed_set.split("~")
+        return base64.urlsafe_b64decode(search_query_base64).decode("utf-8")
+
+    return None
+
+
 def set_to_provider_client(unparsed_set):
     """Take a oai set and convert into provider_id and client_id"""
 
     # Get both a provider and client_id from the set
     client_id = None
     provider_id = None
+
+    # Strip any additional query
+    if "~" in unparsed_set:
+        unparsed_set, _ = unparsed_set.split("~")
 
     # DataCite API deals in lowercase
     if unparsed_set:
