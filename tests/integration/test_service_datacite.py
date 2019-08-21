@@ -3,6 +3,27 @@
 import json
 from viringo.services import datacite
 
+def test_integration_contract_metadata(mocker):
+    """Tests the integration contract is correct against the live API for metadata"""
+
+    # Call the live API service
+    real_metadata = datacite.get_metadata("10.5438/prvv-nv23")
+
+    with open('tests/integration/fixtures/datacite_api_doi.json') as json_file:
+        data = json.load(json_file)
+
+    # Mock the datacite service to ensure the same record data is returned.
+    mocked_requests_get = mocker.patch('viringo.services.datacite.requests.get')
+
+     # Set the mocked service to use the fake result
+    mocked_requests_get.return_value.status_code = 200
+    mocked_requests_get.return_value.json.return_value = data
+
+    fake_metadata = datacite.get_metadata("10.5438/prvv-nv23")
+
+    # Compare just the keys of the results for checking the contract
+    assert list(real_metadata.__dict__.keys()) == list(fake_metadata.__dict__.keys())
+
 # Mock the requests json return
 def test_get_metadata(mocker):
     """Tests the results of the datasite service for getting a single metadata record"""
