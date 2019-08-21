@@ -42,8 +42,23 @@ Can you tell us a little bit about what you did before you started...']
 
 
 # Mock the requests json return
-def test_get_metadata_list():
-    pass
+def test_get_metadata_list(mocker):
+    """Tests the results of the datasite service for getting a list of metadata records"""
+    # Mock the datacite service to ensure the same record data is returned.
+    mocked_requests_get = mocker.patch('viringo.services.datacite.requests.get')
+
+    with open('tests/integration/fixtures/datacite_api_dois.json') as json_file:
+        data = json.load(json_file)
+
+    # Set the mocked service to use the fake result
+    mocked_requests_get.return_value.status_code = 200
+    mocked_requests_get.return_value.json.return_value = data
+
+    # We don't need cursor in the test
+    metadata_list, _ = datacite.get_metadata_list(client_id="datacite.datacite")
+
+    assert len(metadata_list) == 25
+
 
 def test_get_sets(mocker):
     """Tests the results of the datasite service for getting a list of sets"""
