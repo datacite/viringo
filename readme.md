@@ -32,5 +32,6 @@ Integration tests are higher level tests that will usually integrate or mock wit
 other dependencies.
 
 * All tests: ```pipenv run pytest```
+* Only mocked tests: ```pipenv run pytest -v -m "not real"```
 * Integration tests: ```pipenv run pytest tests/integration```
 * Unit tests: ```pipenv run pytest tests/unit```

@@ -1,8 +1,10 @@
 """Tests for DataCite service"""
 
 import json
+import pytest
 from viringo.services import datacite
 
+@pytest.mark.real
 def test_integration_contract_metadata(mocker):
     """Tests the integration contract is correct against the live API for metadata"""
 
