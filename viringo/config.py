@@ -3,7 +3,7 @@
 import os
 
 # URL used for the DataCite REST API
-DATACITE_API_URL = os.getenv('DATACITE_API_URL', 'http://api.datacite.org')
+DATACITE_API_URL = os.getenv('DATACITE_API_URL', 'https://api.datacite.org')
 
 # Name used to identifier the repository.
 OAIPMH_REPOS_NAME = os.getenv('OAIPMH_REPOS_NAME', 'DataCite')
