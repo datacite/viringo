@@ -11,6 +11,7 @@ class MetadataFactory(factory.Factory):
 
     identifier = '10.5072/not-a-real-doi'
     created_datetime = datetime.datetime(2018, 3, 17, 6, 33)
+    updated_datetime = datetime.datetime(2018, 3, 17, 6, 33)
 
     xml = '''<resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="http://datacite.org/schema/kernel-4"

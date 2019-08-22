@@ -133,7 +133,7 @@ def test_list_records_dc(client, mocker):
     result_1 = factories.MetadataFactory()
     result_2 = factories.MetadataFactory(
         identifier="10.5072/not-a-real-doi-2",
-        created_datetime=datetime.datetime(2018, 5, 17, 6, 33),
+        updated_datetime=datetime.datetime(2018, 5, 17, 6, 33),
         dates=[
             {'type': 'Issued', 'date': '2018-02-16'},
             {'type': 'Created', 'date': '2018-02-16'},
@@ -174,7 +174,7 @@ def test_list_identifiers(client, mocker):
     result_1 = factories.MetadataFactory()
     result_2 = factories.MetadataFactory(
         identifier="10.5072/not-a-real-doi-2",
-        created_datetime=datetime.datetime(2018, 5, 17, 6, 33),
+        updated_datetime=datetime.datetime(2018, 5, 17, 6, 33),
     )
     results = [result_1, result_2], 1
 

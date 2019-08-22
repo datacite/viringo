@@ -15,6 +15,7 @@ class Metadata:
             self,
             identifier=None,
             created_datetime=None,
+            updated_datetime=None,
             xml=None,
             titles=None,
             creators=None,
@@ -39,6 +40,7 @@ class Metadata:
 
         self.identifier = identifier
         self.created_datetime = created_datetime or datetime.min
+        self.updated_datetime = updated_datetime or datetime.min
         self.xml = xml
         self.titles = titles or []
         self.creators = creators or []
@@ -70,6 +72,8 @@ def build_metadata(data):
     # This is because OAI always works in UTC.
     created = dateutil.parser.parse(data['attributes']['created'])
     result.created_datetime = created.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
+    updated = dateutil.parser.parse(data['attributes']['updated'])
+    result.updated_datetime = updated.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
 
     result.xml = base64.b64decode(data['attributes']['xml']) \
         if data['attributes']['xml'] is not None else None
@@ -182,9 +186,11 @@ def get_metadata_list(
         until_datetime = datetime.now()
 
     # Construct a custom query for datetime filtering.
+    # We use the updated date not the created date because users tend to prefer
+    # seeing latest changes.
     datetime_query = ''
     if from_datetime and until_datetime:
-        datetime_query = "created:[{0}+TO+{1}]".format(
+        datetime_query = "updated:[{0}+TO+{1}]".format(
             from_datetime.isoformat(), until_datetime.isoformat()
         )
 

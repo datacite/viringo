@@ -217,7 +217,7 @@ class DataCiteOAIServer():
         return common.Header(
             None,
             'doi:' + result.identifier,
-            result.created_datetime,
+            result.updated_datetime,
             setspec=[provider_symbol, result.client],
             deleted=not result.active
         )
