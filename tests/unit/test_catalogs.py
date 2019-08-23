@@ -6,10 +6,10 @@ def test_set_to_search_query():
     """Test for parsing a search query from a set"""
 
     search_query = catalogs.set_to_search_query(None)
-    assert search_query == None
+    assert search_query is None
 
     search_query = catalogs.set_to_search_query("DATACITE.BLOG")
-    assert search_query == None
+    assert search_query is None
 
     search_query = catalogs.set_to_search_query("DATACITE.BLOG~cXVlcnk9bGFzZXI=")
     assert search_query == "query=laser"

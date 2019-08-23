@@ -1,10 +1,10 @@
 """OAI-PMH http server repository implementation"""
 import os
 from flask import Flask, Response
-from . import config
-
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+
+from . import config
 
 sentry_sdk.init(
     dsn=config.SENTRY_DSN,

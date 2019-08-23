@@ -42,6 +42,7 @@ class DataCiteOAIServer():
         return identify
 
     def listMetadataFormats(self, identifier=None):
+        #pylint: disable=no-self-use,invalid-name
         """Returns metadata formats available for the repository
 
         Identifier does nothing as our repository responds in all formats for all dois

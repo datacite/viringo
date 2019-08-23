@@ -7,7 +7,7 @@ if os.getenv('FLASK_ENV') == 'development':
     logging.basicConfig(level=logging.DEBUG)
 
 # Sentry DSN
-SENTRY_DSN  = os.getenv('SENTRY_DSN', None)
+SENTRY_DSN = os.getenv('SENTRY_DSN', None)
 # URL used for the DataCite REST API
 DATACITE_API_URL = os.getenv('DATACITE_API_URL', 'https://api.datacite.org')
 # Name used to identifier the repository.
