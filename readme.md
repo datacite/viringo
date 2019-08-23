@@ -1,20 +1,24 @@
-Viringo
--------
+# Viringo
 
 OAI-PMH Compatible provider for exposing PID related metadata.
 Specifically built for support for DataCite metadata.
 
-### What's a "Viringo"
+## What's a "Viringo"
 Viringo is one of the names for the Peruvian hairless dog.
 Chosen to fit into a naming scheme within DataCite, it also represents
 an element of this mostly being about exposing what's underneath, i.e. no need
 for hair.
 
-## Requirements
+### Requirements
 * Python 3.6+
-* Pipenv to manage dependencies and configure a python virtualenv.
+* Pipenv to manage dependencies
 
-## Development
+# Development
+
+## Local system development
+
+With pipenv it is simple to configure in a virtualenv for local development.
+This method allows full usage of the native flask development server.
 
 ### Pipenv
 This project uses Pipenv, full details can be found here https://docs.pipenv.org/en/latest/
@@ -22,8 +26,10 @@ This project uses Pipenv, full details can be found here https://docs.pipenv.org
 ```
 $ pipenv install
 $ pipenv shell
-$ FLASK_APP=viringo flask run
+$ FLASK_APP=viringo FLASK_ENV=development flask run
 ```
+
+Access on: http://localhost:5000/
 
 ## Testing
 
@@ -35,3 +41,17 @@ other dependencies.
 * Only mocked tests: ```pipenv run pytest -v -m "not real"```
 * Integration tests: ```pipenv run pytest tests/integration```
 * Unit tests: ```pipenv run pytest tests/unit```
+
+
+# Docker (Passenger)
+
+The main dockerfile is built to use the phusion passenger docker image and run
+with the passenger webserver.
+A docker-compose file exists to allow easy starting of this locally.
+
+```docker-compose up``` - to get started
+
+Access via http://localhost:8091
+
+### Development
+You can develop using this docker image but you won't get helpers like auto-reload, it is preferred to use one of the above alternative options.
