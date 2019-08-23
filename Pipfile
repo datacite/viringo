@@ -16,6 +16,7 @@ requests = "*"
 python-dateutil = "*"
 lxml = "*"
 factory-boy = "*"
+json-log-formatter = "*"
 
 [requires]
 python_version = "3.6"

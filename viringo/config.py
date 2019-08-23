@@ -1,10 +1,13 @@
 """Configuration"""
 
 import os
+import logging
+
+if os.getenv('FLASK_ENV') == 'development':
+    logging.basicConfig(level=logging.DEBUG)
 
 # URL used for the DataCite REST API
 DATACITE_API_URL = os.getenv('DATACITE_API_URL', 'https://api.datacite.org')
-
 # Name used to identifier the repository.
 OAIPMH_REPOS_NAME = os.getenv('OAIPMH_REPOS_NAME', 'DataCite')
 # Base URL reported for where the OAI-PMH service is hosted

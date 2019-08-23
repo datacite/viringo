@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  web:
+    image: datacite/viringo
+    build: .
+    ports:
+      - "8091:80"
+    volumes:
+      - ./viringo:/home/app/webapp/viringo
+      - ./tests:/home/app/webapp/tests
+    env_file:
+      - .env

@@ -1,7 +1,7 @@
 """OAI-PMH http server repository implementation"""
 import os
-
 from flask import Flask, Response
+from . import config
 
 class DefaultResponse(Response):
     """Handles default responses for the OAI-PMH responses"""
