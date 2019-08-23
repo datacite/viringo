@@ -1,5 +1,7 @@
 """OAI-PMH main request handling"""
 
+from xml.dom import minidom
+
 from flask import (
     Blueprint, g, request, current_app
 )
@@ -12,7 +14,6 @@ from .catalogs import DataCiteOAIServer
 from . import metadata
 
 BP = Blueprint('oai', __name__)
-
 
 class Server(oaipmh.server.ServerBase):
     """Expects to be initialized with a IOAI server implementation."""
@@ -107,5 +108,15 @@ def index():
 
     # Handle a request for a specific verb
     xml = oai.handleRequest(oai_request_args)
+
+    # This isn't the prettiest way but we need to add the xsl stylesheet
+    dom = minidom.parseString(xml)
+    process_instruction = dom.createProcessingInstruction(
+        'xml-stylesheet',
+        'type="text/xsl" href="/static/oaitohtml.xsl"'
+    )
+    root = dom.firstChild
+    dom.insertBefore(process_instruction, root)
+    xml = dom.toxml()
 
     return xml
