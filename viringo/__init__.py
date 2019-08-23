@@ -27,7 +27,7 @@ def create_app(test_config=None):
 
     # Register Blueprints
     from viringo import oai
-    app.register_blueprint(oai.BP)
+    app.register_blueprint(oai.BP, url_prefix="/oai")
 
     # We want to use a custom response object for default content types
     app.response_class = DefaultResponse
