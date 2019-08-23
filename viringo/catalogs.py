@@ -74,7 +74,7 @@ class DataCiteOAIServer():
         """Returns pyoai data tuple for specific record"""
 
         # We just want the DOI out of the OAI identifier.
-        _, doi = identifier.split(':')
+        _, doi = identifier.split(':', 1)
 
         result = datacite.get_metadata(doi)
         if not result:
