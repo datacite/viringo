@@ -1,7 +1,7 @@
 """OAI-PMH main request handling"""
 
 from flask import (
-    Blueprint, g, request
+    Blueprint, g, request, current_app
 )
 import oaipmh.common
 import oaipmh.metadata
@@ -99,6 +99,8 @@ def index():
 
     if request.args.get('until'):
         oai_request_args['until'] = request.args.get('until')
+
+    current_app.logger.info("OAI request %s", oai_request_args['verb'], extra=oai_request_args)
 
     # Obtain a OAI-PMH server interface to handle requests
     oai = get_oai_server()
