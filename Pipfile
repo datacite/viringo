@@ -18,6 +18,7 @@ python-dateutil = "*"
 lxml = "*"
 factory-boy = "*"
 json-log-formatter = "*"
+sentry-sdk = {extras = ["flask"],version = "*"}
 
 [requires]
 python_version = "3.6"

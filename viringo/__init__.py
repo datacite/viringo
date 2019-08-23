@@ -3,6 +3,14 @@ import os
 from flask import Flask, Response
 from . import config
 
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+sentry_sdk.init(
+    dsn=config.SENTRY_DSN,
+    integrations=[FlaskIntegration()]
+)
+
 class DefaultResponse(Response):
     """Handles default responses for the OAI-PMH responses"""
     default_mimetype = 'application/xml'
