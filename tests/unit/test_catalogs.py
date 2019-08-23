@@ -4,6 +4,10 @@ from viringo import catalogs
 
 def test_set_to_search_query():
     """Test for parsing a search query from a set"""
+
+    search_query = catalogs.set_to_search_query(None)
+    assert search_query == None
+
     search_query = catalogs.set_to_search_query("DATACITE.BLOG")
     assert search_query == None
 
@@ -43,6 +47,10 @@ def test_set_to_provider_client():
     assert client_id is None
 
     provider_id, client_id = catalogs.set_to_provider_client("~cXVlcnk9bGFzZXI=")
+    assert provider_id is None
+    assert client_id is None
+
+    provider_id, client_id = catalogs.set_to_provider_client(None)
     assert provider_id is None
     assert client_id is None
 

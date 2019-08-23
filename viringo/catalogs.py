@@ -280,7 +280,7 @@ class DataCiteOAIServer():
 def set_to_search_query(unparsed_set):
     """Take a oai set and extract any base64url encoded search query"""
 
-    if "~" in unparsed_set:
+    if unparsed_set and "~" in unparsed_set:
         _, search_query_base64 = unparsed_set.split("~")
         return base64.urlsafe_b64decode(search_query_base64).decode("utf-8")
 
@@ -294,12 +294,13 @@ def set_to_provider_client(unparsed_set):
     client_id = None
     provider_id = None
 
-    # Strip any additional query
-    if "~" in unparsed_set:
-        unparsed_set, _ = unparsed_set.split("~")
-
-    # DataCite API deals in lowercase
     if unparsed_set:
+        # Strip any additional query
+        if "~" in unparsed_set:
+            unparsed_set, _ = unparsed_set.split("~")
+
+    if unparsed_set:
+        # DataCite API deals in lowercase
         unparsed_set = unparsed_set.lower()
         if "." in unparsed_set:
             provider_id, _ = unparsed_set.split(".")
