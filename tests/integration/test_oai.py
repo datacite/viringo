@@ -28,7 +28,7 @@ def construct_oai_xml_comparisons(fixture_file_path, target_xml, oai_element):
 
 def test_identify(client):
     """Test the identify verb responds and conforms as expected"""
-    response = client.get('/')
+    response = client.get('/oai')
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
@@ -54,7 +54,7 @@ def test_get_record_dc(client, mocker):
     mocked_get_metadata.return_value = result
 
     response = client.get(
-        '/?verb=GetRecord&metadataPrefix=oai_dc&identifier=doi:10.5072/not-a-real-doi'
+        '/oai?verb=GetRecord&metadataPrefix=oai_dc&identifier=doi:10.5072/not-a-real-doi'
     )
 
     assert response.status_code == 200
@@ -81,7 +81,7 @@ def test_get_record_oai_datacite(client, mocker):
     mocked_get_metadata.return_value = result
 
     response = client.get(
-        '/?verb=GetRecord&metadataPrefix=oai_datacite&identifier=doi:10.5072/not-a-real-doi'
+        '/oai?verb=GetRecord&metadataPrefix=oai_datacite&identifier=doi:10.5072/not-a-real-doi'
     )
 
     assert response.status_code == 200
@@ -108,7 +108,7 @@ def test_get_record_datacite(client, mocker):
     mocked_get_metadata.return_value = result
 
     response = client.get(
-        '/?verb=GetRecord&metadataPrefix=datacite&identifier=doi:10.5072/not-a-real-doi'
+        '/oai?verb=GetRecord&metadataPrefix=datacite&identifier=doi:10.5072/not-a-real-doi'
     )
 
     assert response.status_code == 200
@@ -149,7 +149,7 @@ def test_list_records_dc(client, mocker):
     # Set the mocked service to use the fake result
     mocked_get_metadata_list.return_value = results
 
-    response = client.get('/?verb=ListRecords&metadataPrefix=oai_dc&set=DATACITE.DATACITE')
+    response = client.get('/oai?verb=ListRecords&metadataPrefix=oai_dc&set=DATACITE.DATACITE')
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
@@ -181,7 +181,7 @@ def test_list_identifiers(client, mocker):
     # Set the mocked service to use the fake result
     mocked_get_metadata_list.return_value = results
 
-    response = client.get('/?verb=ListIdentifiers&metadataPrefix=oai_dc&set=DATACITE.DATACITE')
+    response = client.get('/oai?verb=ListIdentifiers&metadataPrefix=oai_dc&set=DATACITE.DATACITE')
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
@@ -220,7 +220,7 @@ def test_list_sets(client, mocker):
     # Set the mocked service to use the fake result
     mocked_get_sets.return_value = results
 
-    response = client.get('/?verb=ListSets')
+    response = client.get('/oai?verb=ListSets')
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
@@ -237,7 +237,7 @@ def test_list_sets(client, mocker):
 
 def test_list_metadata_formats(client):
     """Test the identify verb responds and conforms as expected"""
-    response = client.get('/?verb=ListMetadataFormats')
+    response = client.get('/oai?verb=ListMetadataFormats')
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
@@ -254,12 +254,13 @@ def test_list_metadata_formats(client):
 
 def test_responds_to_get_post(client):
     """Test OAI responds on both GET and POST method requests as per OAI spec"""
-    response = client.get('/')
+    response = client.get('/oai/')
 
+    print(response.get_data())
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
 
-    response = client.post('/')
+    response = client.post('/oai')
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
