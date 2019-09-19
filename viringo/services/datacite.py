@@ -1,6 +1,7 @@
 """Handles interactions to the DataCite REST Service for retrieving metadata"""
 
 import base64
+import logging
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from operator import itemgetter
@@ -163,7 +164,7 @@ def get_metadata(doi):
         data = response.json()['data']
         return build_metadata(data)
     else:
-        response.raise_for_status()
+        logging.error("Error receiving data from datacite REST API")
 
     return None
 
