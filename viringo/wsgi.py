@@ -1,3 +1,5 @@
+"""Script for running WSGI process"""
+
 import sys
 import logging
 import json_log_formatter
