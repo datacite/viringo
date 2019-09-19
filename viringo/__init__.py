@@ -38,6 +38,15 @@ def create_app(test_config=None):
     from viringo import oai
     app.register_blueprint(oai.BP, url_prefix="/oai")
 
+    # Register heartbeat
+    @app.route('/heartbeat')
+    def heartbeat():
+        """General healthcheck route"""
+        resp = Response(response='OK',
+                        status=200,
+                        mimetype="text/plain")
+        return resp
+
     # We want to use a custom response object for default content types
     app.response_class = DefaultResponse
 
