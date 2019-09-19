@@ -198,7 +198,7 @@ def get_metadata_list(
         'detail': True,
         'provider_id': provider_id,
         'client_id': client_id,
-        'page[size]': 50,
+        'page[size]': config.RESULT_SET_SIZE,
         'page[cursor]': cursor
     }
 

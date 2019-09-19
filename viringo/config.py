@@ -16,3 +16,5 @@ OAIPMH_REPOS_NAME = os.getenv('OAIPMH_REPOS_NAME', 'DataCite')
 OAIPMH_BASE_URL = os.getenv('OAIPMH_BASE_URL', 'https://oai.datacite.org/oai')
 # Admin e-mail for the OAI-PMH service
 OAIPMH_ADMIN_EMAIL = os.getenv('OAIPMH_ADMIN_EMAIL', 'support@datacite.org')
+# Page size of results shown for result listings
+RESULT_SET_SIZE = os.getenv('RESULT_SET_SIZE', 50)
