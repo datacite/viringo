@@ -159,10 +159,8 @@ def get_metadata(doi):
     Aside from the raw xml, the attributes parsed are best guesses for returning filled data.
     """
 
-    response = requests.get(
-        config.DATACITE_API_URL + '/dois/' + doi,
-        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
-    )
+    response = api_call_get(config.DATACITE_API_URL + '/dois/' + doi, None)
+
     if response.status_code == 200:
         data = response.json()['data']
         return build_metadata(data)
@@ -215,15 +213,53 @@ def get_metadata_list(
     if query:
         params['query'] = query
 
-    # Construct the payload as a string
-    # to avoid direct urlencoding by requests library which messes up some of the params
-    payload_str = "&".join("%s=%s" % (k, v) for k, v in params.items() if v is not None)
+    url = config.DATACITE_API_URL + '/dois'
 
-    response = requests.get(
-        config.DATACITE_API_URL + '/dois',
-        params=payload_str,
-        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
-    )
+    json, cursor = api_get_cursor(url, params)
+
+    data = json['data']
+    results = []
+    for doi_entry in data:
+        result = build_metadata(doi_entry)
+        results.append(result)
+
+    return results, cursor
+
+def get_sets():
+    """Returns sets that can be used for further sub dividing results"""
+
+    next_url = config.DATACITE_API_URL + '/clients'
+
+    results = []
+
+    while next_url:
+        params = {
+            'page[size]': 1000,
+        }
+
+        json, next_url = api_get_paging_with_url(next_url, params)
+
+        if json:
+            data = json['data'] # clients
+            included = json['included'] # providers
+
+            for entry in data:
+                if entry['id'] not in results:
+                    results.append((entry['id'], entry['attributes']['name']))
+
+            for entry in included:
+                if entry['id'] not in results:
+                    results.append((entry['id'], entry['attributes']['name']))
+
+    # Sort the results, this should be relativly fast given sets tend to be a small subset.
+    results.sort(key=itemgetter(0))
+
+    return results
+
+def api_get_cursor(url, params):
+    """Call the API expecting to page through with cursors"""
+
+    response = api_call_get(url, params)
 
     if response.status_code == 200:
         json = response.json()
@@ -232,59 +268,47 @@ def get_metadata_list(
             return None, None
 
         # Grab out the cursor bit from the full next link
-        next_link = json['links'].get('next')
+        next_link = json['links'].get('next', None)
         if next_link:
             query = parse_qs(urlparse(json['links']['next']).query)
             cursor = query['page[cursor]'][0] # It comes back as a list but only ever one value
         else:
             cursor = 0
 
-        data = json['data']
-        results = []
-        for doi_entry in data:
-            result = build_metadata(doi_entry)
-            results.append(result)
-
-        return results, cursor
+        return json, cursor
     else:
-        response.raise_for_status()
+        logging.error("Error receiving data from datacite REST API")
 
-    return None
+    return None, None
 
-def get_sets():
-    """Returns sets that can be used for further sub dividing results"""
+def api_get_paging_with_url(url, params):
+    """Page results from API via retrieving the next url"""
 
-    params = {
-        'page[size]': 1000,
-    }
-
-    response = requests.get(
-        config.DATACITE_API_URL + '/clients',
-        params,
-        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
-    )
+    response = api_call_get(url, params)
 
     if response.status_code == 200:
         json = response.json()
-
-        if json['meta']['total'] == 0:
-            return None
-
-        data = json['data'] # clients
-        included = json['included'] # providers
-
-        results = []
-        for entry in data:
-            if entry['id'] not in results:
-                results.append((entry['id'], entry['attributes']['name']))
-
-        for entry in included:
-            if entry['id'] not in results:
-                results.append((entry['id'], entry['attributes']['name']))
-
-        # Sort the results, this should be relativly fast given sets tend to be a small subset.
-        results.sort(key=itemgetter(0))
-
-        return results
+        if 'links' in json:
+            next_link = json["links"].get("next", None)
+        else:
+            next_link = None
+        return json, next_link
     else:
-        response.raise_for_status()
+        logging.error("Error receiving data from datacite REST API")
+
+def api_call_get(url, params=None):
+    """Make authenticated get request to API with params"""
+
+    payload_str = ''
+    if params:
+        # Construct the payload as a string
+        # to avoid direct urlencoding by requests library which messes up some of the params
+        payload_str = "&".join("%s=%s" % (k, v) for k, v in params.items() if v is not None)
+
+    response = requests.get(
+        url,
+        params=payload_str,
+        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
+    )
+
+    return response

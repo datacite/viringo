@@ -591,7 +591,6 @@
         ]
     },
     "links": {
-        "self": "https://api.datacite.org/clients?page[size]=10&provider_id=datacite",
-        "next": "https://api.datacite.org/clients?page%5Bnumber%5D=2&page%5Bsize%5D=10&provider-id=datacite"
+        "self": "https://api.datacite.org/clients?page[size]=10&provider_id=datacite"
     }
 }

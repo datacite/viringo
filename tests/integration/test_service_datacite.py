@@ -2,6 +2,7 @@
 
 import json
 import pytest
+import viringo.config
 from viringo.services import datacite
 
 @pytest.mark.real
@@ -9,7 +10,11 @@ def test_integration_contract_metadata(mocker):
     """Tests the integration contract is correct against the live API for metadata"""
 
     # Call the live API service
+    viringo.config.DATACITE_API_URL = 'https://api.datacite.org'
     real_metadata = datacite.get_metadata("10.5438/prvv-nv23")
+
+    if not real_metadata:
+        raise ValueError("No live data")
 
     with open('tests/integration/fixtures/datacite_api_doi.json') as json_file:
         data = json.load(json_file)
@@ -110,6 +115,7 @@ def test_get_sets(mocker):
     mocked_requests_get.return_value.json.return_value = data
 
     sets = datacite.get_sets()
+
     expected_sets = [
         ('datacite', 'DataCite'),
         ('datacite.axiom', 'Axiom Data Science'),
