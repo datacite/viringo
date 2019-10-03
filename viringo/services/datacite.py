@@ -159,7 +159,10 @@ def get_metadata(doi):
     Aside from the raw xml, the attributes parsed are best guesses for returning filled data.
     """
 
-    response = requests.get(config.DATACITE_API_URL + '/dois/' + doi)
+    response = requests.get(
+        config.DATACITE_API_URL + '/dois/' + doi,
+        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
+    )
     if response.status_code == 200:
         data = response.json()['data']
         return build_metadata(data)
@@ -216,7 +219,11 @@ def get_metadata_list(
     # to avoid direct urlencoding by requests library which messes up some of the params
     payload_str = "&".join("%s=%s" % (k, v) for k, v in params.items() if v is not None)
 
-    response = requests.get(config.DATACITE_API_URL + '/dois', params=payload_str)
+    response = requests.get(
+        config.DATACITE_API_URL + '/dois',
+        params=payload_str,
+        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
+    )
 
     if response.status_code == 200:
         json = response.json()
@@ -251,7 +258,11 @@ def get_sets():
         'page[size]': 1000,
     }
 
-    response = requests.get(config.DATACITE_API_URL + '/clients', params)
+    response = requests.get(
+        config.DATACITE_API_URL + '/clients',
+        params,
+        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
+    )
 
     if response.status_code == 200:
         json = response.json()
