@@ -9,6 +9,7 @@ pytest = "*"
 pytest-mock = "*"
 factory-boy = "*"
 termcolor = "*"
+python-dotenv = "*"
 
 [packages]
 flask = "*"
