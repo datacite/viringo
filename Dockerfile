@@ -59,7 +59,7 @@ RUN chown -R app:app /home/app/webapp && \
 WORKDIR /home/app/webapp
 
 # Install any needed packages specified in pipenv pipfile
-RUN pipenv install --system --deploy --ignore-pipfile
+RUN pipenv install --system --deploy --skip-lock
 
 # Expose web
 EXPOSE 80
