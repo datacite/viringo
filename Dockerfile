@@ -27,6 +27,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN rm -f /etc/service/nginx/down && \
     rm /etc/nginx/sites-enabled/default
 COPY vendor/docker/webapp.conf /etc/nginx/sites-enabled/webapp.conf
+COPY vendor/docker/00_app_env.conf /etc/nginx/conf.d/00_app_env.conf
 
 # Use Amazon NTP servers
 COPY vendor/docker/ntp.conf /etc/ntp.conf
@@ -38,6 +39,9 @@ RUN rm -f /etc/service/sshd/down && \
 # install custom ssh key during startup
 RUN mkdir -p /etc/my_init.d
 COPY vendor/docker/10_ssh.sh /etc/my_init.d/10_ssh.sh
+
+# restart server on file changes in development
+COPY vendor/docker/20_always_restart.sh /etc/my_init.d/20_always_restart.sh
 
 ## Viringo setup
 
@@ -51,7 +55,7 @@ COPY tests /home/app/tests
 RUN chown -R app:app /home/app/webapp && \
     chmod -R 755 /home/app/webapp
 
-# # Set working directory to crawler
+# Set working directory
 WORKDIR /home/app/webapp
 
 # Install any needed packages specified in pipenv pipfile
