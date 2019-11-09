@@ -1,5 +1,5 @@
 #!/bin/bash
 if [ "$FLASK_ENV" == "development" ]; then
-  mkdir -p tmp
-  touch tmp/always_restart.txt
+  mkdir -p /home/app/webapp/viringo/tmp
+  touch /home/app/webapp/viringo/tmp/always_restart.txt
 fi

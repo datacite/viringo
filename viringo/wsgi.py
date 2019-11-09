@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from viringo import create_app
 
+# load env variables from .env file
 load_dotenv()
 
 application = create_app()
