@@ -3,7 +3,7 @@
 set -e
 
 # Login
-docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+docker login -u "$DOCKER_USERNAME" --password-stdin "$DOCKER_PASSWORD";
 
 # We want to tag builds as appropriate
 if [ "${TRAVIS_TAG?}" ]; then
