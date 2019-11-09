@@ -117,12 +117,14 @@ def build_metadata(data):
 
     result.identifiers = []
 
-    for identifier in data['attributes']['identifiers']:
-        if identifier['identifier']:
-            result.identifiers.append({
-                'type': identifier['identifierType'],
-                'identifier': strip_uri_prefix(identifier['identifier'])
-            })
+    # handle missing identifiers attribute
+    if data['attributes']['identifiers'] is not None:
+        for identifier in data['attributes']['identifiers']:
+            if identifier['identifier']:
+                result.identifiers.append({
+                    'type': identifier['identifierType'],
+                    'identifier': strip_uri_prefix(identifier['identifier'])
+                })
 
     result.language = data['attributes'].get('language') or ''
 
@@ -139,7 +141,7 @@ def build_metadata(data):
     result.client = data['relationships']['client']['data'].get('id').upper() or ''
 
     # We make the active decision based upon if there is metadata and the isActive flag
-    # This is the same as previous oai-pmh datacite implementation.
+    # This is the same as the previous oai-pmh datacite implementation.
     result.active = True if result.xml and data.get('isActive', True) else False
 
     return result
@@ -216,6 +218,11 @@ def get_metadata_list(
     url = config.DATACITE_API_URL + '/dois'
 
     json, cursor = api_get_cursor(url, params)
+
+    # handle response that is not dict
+    if type(json) is not dict:
+        logging.debug('Response: %s', json)
+        json = { 'data': [] }
 
     data = json['data']
     results = []
