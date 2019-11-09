@@ -34,6 +34,7 @@ Unit and Integration tests are split out to allow optional faster builds.
 Integration tests are higher level tests that will usually integrate or mock with
 other dependencies.
 
+* Linter: `docker-compose exec web pipenv run pylint **/*.py`
 * All tests: `docker-compose exec web pipenv run pytest`
 * Only mocked tests: `docker-compose exec web pipenv run pytest -v -m "not real"`
 * Integration tests: `docker-compose exec web pipenv run pytest tests/integration`
