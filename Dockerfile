@@ -9,7 +9,7 @@ CMD ["/sbin/my_init"]
 
 # Update installed APT packages
 RUN apt-get update && apt-get upgrade -y -o Dpkg::Options::="--force-confold" && \
-    apt-get install -y ntp
+    apt-get install -y ntp pandoc
 
 # Fetch PIP install script and run
 ADD "https://bootstrap.pypa.io/get-pip.py" /tmp/get-pip.py
@@ -44,6 +44,18 @@ COPY vendor/docker/10_ssh.sh /etc/my_init.d/10_ssh.sh
 
 # restart server on file changes in development
 COPY vendor/docker/20_always_restart.sh /etc/my_init.d/20_always_restart.sh
+
+# Build static site for landing page
+# Install Ruby gems for middleman
+COPY vendor/middleman /home/app/vendor/middleman
+WORKDIR /home/app/vendor/middleman
+RUN mkdir -p bundle && \
+    chown -R app:app . && \
+    chmod -R 755 . && \
+    gem update --system && \
+    gem install bundler && \
+    /sbin/setuser app bundle install --path bundle
+COPY vendor/docker/90_index_page.sh /etc/my_init.d/90_index_page.sh
 
 ## Viringo setup
 
