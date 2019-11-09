@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/datacite/viringo.svg?branch=master)](https://travis-ci.com/datacite/viringo) [![Docker Build Status](https://img.shields.io/docker/build/datacite/viringo.svg)](https://hub.docker.com/r/datacite/viringo/)
+[![Build Status](https://travis-ci.com/datacite/viringo.svg?branch=master)](https://travis-ci.com/datacite/viringo) [![Docker Build Status](https://img.shields.io/docker/build/datacite/viringo.svg)](https://hub.docker.com/r/datacite/viringo)
 
 # Viringo
 
@@ -48,15 +48,16 @@ other dependencies.
 # Docker (Passenger)
 
 The main dockerfile is built to use the phusion passenger docker image and run
-with the passenger application server (and nginx webserver).
-A docker-compose file exists to allow easy starting of this locally.
+with the passenger application server (and nginx webserver). A docker-compose file
+exists to allow easy starting of this locally.
 
 `docker-compose up` - to get started
 
 Access via http://localhost:8091
 
 ### Development
-You can develop using this docker image but you won't get helpers like auto-reload, it is preferred to use one of the above alternative options.
+You can develop using this docker image but you won't get helpers like auto-reload,
+it is preferred to use one of the above alternative options.
 
 ## License
 

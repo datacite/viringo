@@ -1,9 +1,6 @@
 
 FROM phusion/passenger-full:1.0.6
 
-# Allow app user to read /etc/container_environment
-RUN usermod -a -G docker_env app
-
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
 
@@ -34,17 +31,6 @@ COPY vendor/docker/env.conf /etc/nginx/main.d/env.conf
 # Use Amazon NTP servers
 COPY vendor/docker/ntp.conf /etc/ntp.conf
 
-# enable SSH
-RUN rm -f /etc/service/sshd/down && \
-    /etc/my_init.d/00_regen_ssh_host_keys.sh
-
-# install custom ssh key during startup
-RUN mkdir -p /etc/my_init.d
-COPY vendor/docker/10_ssh.sh /etc/my_init.d/10_ssh.sh
-
-# restart server on file changes in development
-COPY vendor/docker/20_always_restart.sh /etc/my_init.d/20_always_restart.sh
-
 # Build static site for landing page
 # Install Ruby gems for middleman
 COPY vendor/middleman /home/app/vendor/middleman
@@ -55,7 +41,6 @@ RUN mkdir -p bundle && \
     gem update --system && \
     gem install bundler && \
     /sbin/setuser app bundle install --path bundle
-COPY vendor/docker/90_index_page.sh /etc/my_init.d/90_index_page.sh
 
 ## Viringo setup
 
@@ -73,7 +58,23 @@ RUN chown -R app:app /home/app/webapp && \
 WORKDIR /home/app/webapp
 
 # Install any needed packages specified in pipenv pipfile
-RUN pipenv install --system --deploy --skip-lock
+RUN pipenv install --system --deploy --ignore-pipfile
+
+# Run additional scripts during container startup (i.e. not at build time)
+RUN mkdir -p /etc/my_init.d
+
+# enable SSH
+RUN rm -f /etc/service/sshd/down && \
+    /etc/my_init.d/00_regen_ssh_host_keys.sh
+
+# install custom ssh key during startup
+COPY vendor/docker/10_ssh.sh /etc/my_init.d/10_ssh.sh
+
+# restart server on file changes in development
+COPY vendor/docker/20_always_restart.sh /etc/my_init.d/20_always_restart.sh
+
+# Build static site for landing page
+COPY vendor/docker/90_index_page.sh /etc/my_init.d/90_index_page.sh
 
 # Expose web
 EXPOSE 80
