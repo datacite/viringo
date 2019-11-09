@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/datacite/viringo.svg?branch=master)](https://travis-ci.com/datacite/viringo) [![Docker Build Status](https://img.shields.io/docker/build/datacite/viringo.svg)](https://hub.docker.com/r/datacite/viringo)
+[![Build Status](https://travis-ci.com/datacite/viringo.svg?branch=master)](https://travis-ci.com/datacite/viringo) [![Docker Build Status](https://img.shields.io/docker/cloud/datacite/viringo.svg)](https://hub.docker.com/r/datacite/viringo)
 
 # Viringo
 
