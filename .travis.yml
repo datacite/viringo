@@ -5,6 +5,8 @@ python:
 install:
   - pip install pipenv
   - pipenv install -d
+  - curl -sL https://sentry.io/get-cli/ | bash
+  - sentry-cli --version
 
 services:
   - docker
