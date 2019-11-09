@@ -30,7 +30,7 @@ You can now point your browser to `http://localhost:8091` and use the applicatio
 
 ## Development
 
-Unit and Interation tests are split out to allow optional faster builds. 
+Unit and Integration tests are split out to allow optional faster builds. 
 Integration tests are higher level tests that will usually integrate or mock with
 other dependencies.
 
