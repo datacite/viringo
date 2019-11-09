@@ -1,10 +1,6 @@
 """Configuration"""
 
 import os
-import logging
-
-if os.getenv('FLASK_ENV') == 'development':
-    logging.basicConfig(level=logging.DEBUG)
 
 # Sentry DSN
 SENTRY_DSN = os.getenv('SENTRY_DSN', None)
