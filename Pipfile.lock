@@ -1,10 +1,12 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "71c011db0706e5adda45c6441cd9114a08bf254aff99a05e847851d9fa55c84c"
+            "sha256": "d91bdb0b42157aff299e38b598e28b3d1e2820ab506698306e9ff018b21d5cd7"
         },
         "pipfile-spec": 6,
-        "requires": {},
+        "requires": {
+            "python_version": "3.6"
+        },
         "sources": [
             {
                 "name": "pypi",
@@ -85,13 +87,12 @@
             ],
             "version": "==2.10.3"
         },
-        "json-log-formatter": {
+        "logstash-formatter": {
             "hashes": [
-                "sha256:8bb02773a37274c08f4de748e3accbed269c8395d27149bc2e7e9109af342eee",
-                "sha256:cdc1f1dabc0b9c808ed4e4f26e73885a9e7955bf7190dd9f1b86be967feb5b29"
+                "sha256:163f5ef62df5459f1d36dcb54e9c3f8f0c90157a324a3361887532b615bf4fb9"
             ],
             "index": "pypi",
-            "version": "==0.2.0"
+            "version": "==0.5.17"
         },
         "lxml": {
             "hashes": [
