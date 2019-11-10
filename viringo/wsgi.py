@@ -3,7 +3,7 @@
 import os
 import sys
 import logging
-from logstash_formatter import LogstashFormatterV1
+import json_log_formatter
 from dotenv import load_dotenv
 
 from viringo import create_app
@@ -18,7 +18,7 @@ stdout_handler = logging.StreamHandler(sys.stdout)
 
 # Use JSON stdout handler if not in debug mode
 if not application.debug:
-    formatter = LogstashFormatterV1()
+    formatter = json_log_formatter.JSONFormatter()
     stdout_handler.setFormatter(formatter)
 
 logger = logging.getLogger('werkzeug')

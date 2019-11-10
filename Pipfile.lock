@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d91bdb0b42157aff299e38b598e28b3d1e2820ab506698306e9ff018b21d5cd7"
+            "sha256": "408ef5f3e6921b3359ecee3e8d293c34bd619136293244fe829928ab30c6cf06"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -87,12 +87,13 @@
             ],
             "version": "==2.10.3"
         },
-        "logstash-formatter": {
+        "json-log-formatter": {
             "hashes": [
-                "sha256:163f5ef62df5459f1d36dcb54e9c3f8f0c90157a324a3361887532b615bf4fb9"
+                "sha256:8bb02773a37274c08f4de748e3accbed269c8395d27149bc2e7e9109af342eee",
+                "sha256:cdc1f1dabc0b9c808ed4e4f26e73885a9e7955bf7190dd9f1b86be967feb5b29"
             ],
             "index": "pypi",
-            "version": "==0.5.17"
+            "version": "==0.2.0"
         },
         "lxml": {
             "hashes": [
