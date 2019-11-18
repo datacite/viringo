@@ -144,7 +144,7 @@ def test_list_records_dc(client, mocker):
         ],
         relations=[]
     )
-    results = [result_1, result_2], 1
+    results = [result_1, result_2], 2, 1
 
     # Set the mocked service to use the fake result
     mocked_get_metadata_list.return_value = results
@@ -176,7 +176,7 @@ def test_list_identifiers(client, mocker):
         identifier="10.5072/not-a-real-doi-2",
         updated_datetime=datetime.datetime(2018, 5, 17, 6, 33),
     )
-    results = [result_1, result_2], 1
+    results = [result_1, result_2], 2, 1
 
     # Set the mocked service to use the fake result
     mocked_get_metadata_list.return_value = results
@@ -218,7 +218,7 @@ def test_list_sets(client, mocker):
     ]
 
     # Set the mocked service to use the fake result
-    mocked_get_sets.return_value = results
+    mocked_get_sets.return_value = results, len(results)
 
     response = client.get('/oai?verb=ListSets')
 

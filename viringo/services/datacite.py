@@ -224,13 +224,14 @@ def get_metadata_list(
         logging.debug('Response: %s', json)
         json = { 'data': [] }
 
+    total_records = json['meta']['total']
     data = json['data']
     results = []
     for doi_entry in data:
         result = build_metadata(doi_entry)
         results.append(result)
 
-    return results, cursor
+    return results, total_records, cursor
 
 def get_sets():
     """Returns sets that can be used for further sub dividing results"""
@@ -260,8 +261,9 @@ def get_sets():
 
     # Sort the results, this should be relativly fast given sets tend to be a small subset.
     results.sort(key=itemgetter(0))
+    total_results = len(results)
 
-    return results
+    return results, total_results
 
 def api_get_cursor(url, params):
     """Call the API expecting to page through with cursors"""

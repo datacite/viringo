@@ -16,6 +16,6 @@
       <setSpec>DATACITE</setSpec>
       <setSpec>DATACITE.DATACITE</setSpec>
     </header>
-    <resumptionToken>metadataPrefix%3Doai_dc%26set%3DDATACITE.DATACITE%26paging_cursor%3D1%26cursor%3D1</resumptionToken>
+    <resumptionToken completeListSize="2">metadataPrefix%3Doai_dc%26set%3DDATACITE.DATACITE%26paging_cursor%3D1%26cursor%3D1</resumptionToken>
   </ListIdentifiers>
 </OAI-PMH>

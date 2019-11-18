@@ -80,8 +80,9 @@ def test_get_metadata_list(mocker):
     mocked_requests_get.return_value.json.return_value = data
 
     # We don't need cursor in the test
-    metadata_list, _ = datacite.get_metadata_list(client_id="datacite.datacite")
+    metadata_list, total_results, _ = datacite.get_metadata_list(client_id="datacite.datacite")
 
+    assert total_results == 40
     assert len(metadata_list) == 25
 
 def test_get_metadata_list_search_query(mocker):
@@ -97,8 +98,9 @@ def test_get_metadata_list_search_query(mocker):
     mocked_requests_get.return_value.json.return_value = data
 
     # We don't need cursor in the test
-    metadata_list, _ = datacite.get_metadata_list(query="publicationYear:2016")
+    metadata_list, total_results, _ = datacite.get_metadata_list(query="publicationYear:2016")
 
+    assert total_results == 1189987
     assert len(metadata_list) == 25
     assert metadata_list[0].publication_year == 2016
 
@@ -114,7 +116,7 @@ def test_get_sets(mocker):
     mocked_requests_get.return_value.status_code = 200
     mocked_requests_get.return_value.json.return_value = data
 
-    sets = datacite.get_sets()
+    sets, total_results = datacite.get_sets()
 
     expected_sets = [
         ('datacite', 'DataCite'),
@@ -130,4 +132,5 @@ def test_get_sets(mocker):
         ('datacite.transfer', 'DOI Transfer Client')
     ]
 
+    assert total_results == 11
     assert sets == expected_sets

@@ -48,6 +48,6 @@
       <setSpec>DATACITE.TRANSFER</setSpec>
       <setName>DOI Transfer Client</setName>
     </set>
-    <resumptionToken />
+    <resumptionToken completeListSize="11" />
   </ListSets>
 </OAI-PMH>

@@ -111,8 +111,7 @@ class DataCiteOAIServer():
 
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
-
-        results, paging_cursor = datacite.get_metadata_list(
+        results, total_records, paging_cursor = datacite.get_metadata_list(
             query=search_query,
             provider_id=provider_id,
             client_id=client_id,
@@ -140,7 +139,7 @@ class DataCiteOAIServer():
 
         # This differs from the pyoai implementation in that we have to return a cursor here
         # But this is okay as we have a custom server to handle it.
-        return records, paging_cursor
+        return records, total_records, paging_cursor
 
     def listIdentifiers(
             self,
@@ -156,7 +155,7 @@ class DataCiteOAIServer():
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
 
-        results, paging_cursor = datacite.get_metadata_list(
+        results, total_records, paging_cursor = datacite.get_metadata_list(
             provider_id=provider_id,
             client_id=client_id,
             from_datetime=from_,
@@ -173,7 +172,7 @@ class DataCiteOAIServer():
 
         # This differs from the pyoai implementation in that we have to return a cursor here
         # But this is okay as we have a custom server to handle it.
-        return records, paging_cursor
+        return records, total_records, paging_cursor
 
     def listSets(
             self,
@@ -192,7 +191,7 @@ class DataCiteOAIServer():
 
         batch_size = 50
         next_batch = paging_cursor + batch_size
-        results = datacite.get_sets()[paging_cursor: next_batch]
+        results, total_results = datacite.get_sets()[paging_cursor: next_batch]
 
         if len(results) < batch_size:
             paging_cursor = None
@@ -207,7 +206,7 @@ class DataCiteOAIServer():
 
         # This differs from the pyoai implementation in that we have to return a cursor here
         # But this is okay as we have a custom server to handle it.
-        return records, paging_cursor
+        return records, total_results, paging_cursor
 
     def build_header(self, result):
         """Construct a OAI-PMH record header"""
