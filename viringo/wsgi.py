@@ -13,14 +13,17 @@ load_dotenv()
 
 application = create_app()
 
-# Configure logging
-stdout_handler = logging.StreamHandler(sys.stdout)
+from flask.logging import default_handler
 
-# Use JSON stdout handler if not in debug mode
-if not application.debug:
+logger = application.logger
+if not logger.handlers:
+    stdout_handler = logging.StreamHandler(sys.stdout)
+
+    logger.removeHandler(default_handler)
+
     formatter = json_log_formatter.JSONFormatter()
     stdout_handler.setFormatter(formatter)
 
-logger = logging.getLogger('werkzeug')
-logger.setLevel(os.getenv('LOG_LEVEL', 'INFO'))
-logger.handlers = [stdout_handler]
+    logger.handlers = [stdout_handler]
+    logger.setLevel(os.getenv('LOG_LEVEL', 'INFO'))
+
