@@ -224,7 +224,10 @@ def get_metadata_list(
         logging.debug('Response: %s', json)
         json = { 'data': [] }
 
-    total_records = json['meta']['total']
+    total_records = 0
+    if 'meta' in json:
+        total_records = json['meta']['total']
+
     data = json['data']
     results = []
     for doi_entry in data:
