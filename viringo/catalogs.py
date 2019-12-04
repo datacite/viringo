@@ -282,7 +282,10 @@ def set_to_search_query(unparsed_set):
 
     if unparsed_set and "~" in unparsed_set:
         _, search_query_base64 = unparsed_set.split("~")
-        return base64.urlsafe_b64decode(search_query_base64).decode("utf-8")
+        try:
+            base64.urlsafe_b64decode(search_query_base64).decode("utf-8")
+        except:
+            return None
 
     return None
 
