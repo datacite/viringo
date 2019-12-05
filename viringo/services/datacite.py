@@ -18,6 +18,7 @@ class Metadata:
             created_datetime=None,
             updated_datetime=None,
             xml=None,
+            metadata_version=None,
             titles=None,
             creators=None,
             subjects=None,
@@ -43,6 +44,7 @@ class Metadata:
         self.created_datetime = created_datetime or datetime.min
         self.updated_datetime = updated_datetime or datetime.min
         self.xml = xml
+        self.metadata_version = metadata_version
         self.titles = titles or []
         self.creators = creators or []
         self.subjects = subjects or []
@@ -78,6 +80,9 @@ def build_metadata(data):
 
     result.xml = base64.b64decode(data['attributes']['xml']) \
         if data['attributes']['xml'] is not None else None
+
+    result.metadata_version = data['attributes']['metadataVersion'] \
+        if data['attributes']['metadataVersion'] is not None else None
 
     result.titles = [
         title.get('title', '') for title in data['attributes']['titles']

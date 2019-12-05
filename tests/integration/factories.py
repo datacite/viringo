@@ -70,6 +70,7 @@ class MetadataFactory(factory.Factory):
     </geoLocations>
     </resource>
     '''
+    metadata_version = 4
     titles = ['This is a fake DOI with fake metadata.']
     creators = ['Fenner, Martin', 'Hallett, Richard']
     subjects = ['datacite']

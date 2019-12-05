@@ -274,7 +274,8 @@ class DataCiteOAIServer():
             'language': [result.language] if result.language else [],
             'rights': rights,
             'xml': result.xml,
-            'set': result.client
+            'set': result.client,
+            'metadata_version': result.metadata_version
         }
 
         return metadata

@@ -57,6 +57,7 @@ def oai_datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
     raw_xml = _map.get('xml', '')
+
     xml_resource_element = etree.fromstring(raw_xml)
 
     e_oai_datacite = etree.SubElement(
@@ -68,9 +69,7 @@ def oai_datacite_writer(element: etree.Element, metadata):
         '{%s}schemaLocation' % NS_XSI, 'http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd'
     )
 
-    # Extract the schema version from the default namespace of the root resource element.
-    full_schema = xml_resource_element.nsmap[None]
-    schema_version = full_schema.split("http://datacite.org/schema/kernel-", 1)[1]
+    schema_version = _map.get('metadata_version', '')
 
     e_schema_version = etree.SubElement(e_oai_datacite, 'schemaVersion')
     e_schema_version.text = str(schema_version)
@@ -80,4 +79,3 @@ def oai_datacite_writer(element: etree.Element, metadata):
     e_payload = etree.SubElement(e_oai_datacite, 'payload')
 
     e_payload.append(xml_resource_element)
-    
