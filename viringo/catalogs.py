@@ -5,6 +5,8 @@ pyoai library.
 """
 
 import base64
+import binascii
+import logging
 from datetime import datetime
 from oaipmh import common, error
 
@@ -283,11 +285,12 @@ def set_to_search_query(unparsed_set):
     if unparsed_set and "~" in unparsed_set:
         _, search_query_base64 = unparsed_set.split("~")
         try:
-            base64.urlsafe_b64decode(search_query_base64).decode("utf-8")
-        except:
-            return None
+            return base64.urlsafe_b64decode(search_query_base64).decode("utf-8")
+        except binascii.Error:
+            logging.debug("Unable to parse set search query")
+            return ""
 
-    return None
+    return ""
 
 
 def set_to_provider_client(unparsed_set):

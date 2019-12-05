@@ -6,25 +6,25 @@ def test_set_to_search_query():
     """Test for parsing a search query from a set"""
 
     search_query = catalogs.set_to_search_query(None)
-    assert search_query is None
+    assert search_query is ""
 
     search_query = catalogs.set_to_search_query("DATACITE.BLOG")
-    assert search_query is None
+    assert search_query is ""
 
-    search_query = catalogs.set_to_search_query("DATACITE.BLOG~cXVlcnk9bGFzZXI=")
-    assert search_query == "query=laser"
+    search_query = catalogs.set_to_search_query("DATACITE.BLOG~bGFzZXI=")
+    assert search_query == "laser"
 
-    search_query = catalogs.set_to_search_query("~cXVlcnk9bGFzZXI=")
-    assert search_query == "query=laser"
+    search_query = catalogs.set_to_search_query("~bGFzZXI=")
+    assert search_query == "laser"
 
-    search_query = catalogs.set_to_search_query("DATACITE.BLOG~cXVlcnk9Y3JlYXRvcnMubmFtZUlkZW50aWZpZXJzLm5hbWVJZGVudGlmaWVyVHlwZTpPUkNJRA==")
-    assert search_query == "query=creators.nameIdentifiers.nameIdentifierType:ORCID"
+    search_query = catalogs.set_to_search_query("DATACITE.BLOG~Y3JlYXRvcnMubmFtZUlkZW50aWZpZXJzLm5hbWVJZGVudGlmaWVyVHlwZTpPUkNJRA==")
+    assert search_query == "creators.nameIdentifiers.nameIdentifierType:ORCID"
 
-    search_query = catalogs.set_to_search_query("DATACITE~cXVlcnk9Y3JlYXRvcnMubmFtZUlkZW50aWZpZXJzLm5hbWVJZGVudGlmaWVyOio=")
-    assert search_query == "query=creators.nameIdentifiers.nameIdentifier:*"
+    search_query = catalogs.set_to_search_query("DATACITE~Y3JlYXRvcnMubmFtZUlkZW50aWZpZXJzLm5hbWVJZGVudGlmaWVyOio=")
+    assert search_query == "creators.nameIdentifiers.nameIdentifier:*"
 
-    search_query = catalogs.set_to_search_query("DATACITE~cXVlcnk9Y3JlYXRvcnMubmFtZUlkZW50aWZpZXJzLm5hbWVJZGVudGlmaWVyOio=")
-    assert search_query == "query=creators.nameIdentifiers.nameIdentifier:*"
+    search_query = catalogs.set_to_search_query("DATACITE~Y3JlYXRvcnMubmFtZUlkZW50aWZpZXJzLm5hbWVJZGVudGlmaWVyOio=")
+    assert search_query == "creators.nameIdentifiers.nameIdentifier:*"
 
 
 def test_set_to_provider_client():
