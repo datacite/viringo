@@ -104,9 +104,10 @@ def build_metadata(data):
     result.publication_year = data['attributes'].get('publicationYear') or ''
 
     result.dates = []
-    for date in data['attributes']['dates']:
-        if 'date' in date and 'dateType' in date:
-            result.dates.append({'type': date['dateType'], 'date': date['date']})
+    if data['attributes']['dates'] is not None:
+        for date in data['attributes']['dates']:
+            if 'date' in date and 'dateType' in date:
+                result.dates.append({'type': date['dateType'], 'date': date['date']})
 
     result.contributors = data['attributes'].get('contributors') or []
     result.funding_references = data['attributes'].get('fundingReferences') or []
@@ -135,12 +136,13 @@ def build_metadata(data):
     result.language = data['attributes'].get('language') or ''
 
     result.relations = []
-    for related in data['attributes']['relatedIdentifiers']:
-        if 'relatedIdentifier' in related:
-            result.relations.append({
-                'type': related['relatedIdentifierType'],
-                'identifier': related['relatedIdentifier']
-            })
+    if data['attributes']['relatedIdentifiers'] is not None:
+        for related in data['attributes']['relatedIdentifiers']:
+            if 'relatedIdentifier' in related:
+                result.relations.append({
+                    'type': related['relatedIdentifierType'],
+                    'identifier': related['relatedIdentifier']
+                })
 
     result.rights = [
         {'statement': right.get('rights', None), 'uri': right.get('rightsUri', None)}
