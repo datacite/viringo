@@ -103,9 +103,10 @@ def build_metadata(data):
     result.publisher = data['attributes'].get('publisher') or ''
     result.publication_year = data['attributes'].get('publicationYear') or ''
 
-    result.dates = [
-        {'type': date['dateType'], 'date': date['date']} for date in data['attributes']['dates'] if date.get('date')
-    ] if data['attributes']['dates'] is not None else []
+    result.dates = []
+    for date in data['attributes']['dates']:
+        if 'date' in date and 'dateType' in date:
+            result.dates.append({'type': date['dateType'], 'date': date['date']})
 
     result.contributors = data['attributes'].get('contributors') or []
     result.funding_references = data['attributes'].get('fundingReferences') or []
