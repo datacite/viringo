@@ -193,7 +193,8 @@ class DataCiteOAIServer():
 
         batch_size = 50
         next_batch = paging_cursor + batch_size
-        results, total_results = datacite.get_sets()[paging_cursor: next_batch]
+        results, total_results = datacite.get_sets()
+        results = results[paging_cursor: next_batch]
 
         if len(results) < batch_size:
             paging_cursor = None
