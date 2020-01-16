@@ -133,10 +133,13 @@ def build_metadata(data):
 
     result.language = data['attributes'].get('language') or ''
 
-    result.relations = [
-        {'type': related['relatedIdentifierType'], 'identifier': related['relatedIdentifier']}
-        for related in data['attributes']['relatedIdentifiers']
-    ] if data['attributes']['relatedIdentifiers'] is not None else []
+    result.relations = []
+    for related in data['attributes']['relatedIdentifiers']:
+        if 'relatedIdentifier' in related:
+            result.relations.append({
+                'type': related['relatedIdentifierType'],
+                'identifier': related['relatedIdentifier']
+            })
 
     result.rights = [
         {'statement': right.get('rights', None), 'uri': right.get('rightsUri', None)}
