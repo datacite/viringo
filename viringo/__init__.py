@@ -1,6 +1,6 @@
 """OAI-PMH http server repository implementation"""
 import os
-from flask import Flask, Response
+from flask import Flask, Response, redirect, url_for
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
@@ -37,6 +37,10 @@ def create_app(test_config=None):
     # Register Blueprints
     from viringo import oai
     app.register_blueprint(oai.BP, url_prefix="/oai")
+
+    @app.route('/')
+    def index():
+        return redirect(url_for('oai.index'))
 
     # Register heartbeat
     @app.route('/heartbeat')
