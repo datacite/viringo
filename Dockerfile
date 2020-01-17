@@ -31,17 +31,6 @@ COPY vendor/docker/env.conf /etc/nginx/main.d/env.conf
 # Use Amazon NTP servers
 COPY vendor/docker/ntp.conf /etc/ntp.conf
 
-# Build static site for landing page
-# Install Ruby gems for middleman
-COPY vendor/middleman /home/app/vendor/middleman
-WORKDIR /home/app/vendor/middleman
-RUN mkdir -p bundle && \
-    chown -R app:app . && \
-    chmod -R 755 . && \
-    gem update --system && \
-    gem install bundler && \
-    /sbin/setuser app bundle install --path bundle
-
 ## Viringo setup
 
 # Copy webapp folder
@@ -72,9 +61,6 @@ COPY vendor/docker/10_ssh.sh /etc/my_init.d/10_ssh.sh
 
 # restart server on file changes in development
 COPY vendor/docker/20_always_restart.sh /etc/my_init.d/20_always_restart.sh
-
-# Build static site for landing page
-COPY vendor/docker/90_index_page.sh /etc/my_init.d/90_index_page.sh
 
 # Expose web
 EXPOSE 80
