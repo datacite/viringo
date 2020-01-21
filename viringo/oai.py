@@ -12,7 +12,9 @@ import oaipmh.server
 import oaipmh.datestamp
 
 from .catalogs import DataCiteOAIServer
+from .catalogs import PostgresOAIServer
 from . import metadata
+from . import config
 
 BP = Blueprint('oai', __name__)
 
@@ -93,7 +95,13 @@ class Resumption(oaipmh.common.ResumptionOAIPMH):
 def get_oai_server():
     """Returns a pyoai server object that can process and return OAI requests"""
     if 'oai' not in g:
-        catalog_server = DataCiteOAIServer()
+        if config.CATALOG_SET == 'DateCite':
+            catalog_server = DataCiteOAIServer()
+        elif config.CATALOG_SET == 'Postgres':
+            catalog_server = PostgresOAIServer()
+        else:
+            print('No valid metadata catalog configured')
+            sys.exit(1)
 
         metadata_registry = oaipmh.metadata.MetadataRegistry()
         metadata_registry.registerWriter('oai_dc', metadata.oai_dc_writer)
