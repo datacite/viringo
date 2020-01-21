@@ -12,6 +12,7 @@ from oaipmh import common, error
 
 from viringo import config
 from .services import datacite
+from .services import postgres
 
 class DataCiteOAIServer():
     """Build OAI-PMH data responses for DataCite metadata catalog"""
@@ -111,15 +112,18 @@ class DataCiteOAIServer():
         # If available get the search query from the set param
         search_query = set_to_search_query(set)
 
+        # From and until parameters aren't supported with Postgres
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
-        results, total_records, paging_cursor = datacite.get_metadata_list(
+        results, total_records, paging_cursor = postgres.get_metadata_list(
             query=search_query,
             provider_id=provider_id,
             client_id=client_id,
-            from_datetime=from_,
-            until_datetime=until,
-            cursor=paging_cursor
+            cursor=paging_cursor,
+            server=config.POSTGRES_SERVER,
+            db=config.POSTGRES_DB,
+            user=config.POSTGRES_USER,
+            password=config.POSTGRES_PASSWORD
         )
 
         records = []
@@ -302,9 +306,9 @@ class PostgresOAIServer():
         datacite_desc = """
         <oai-identifier xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
             <scheme>oai</scheme>
-            <repositoryIdentifier>oai.datacite.org</repositoryIdentifier>
+            <repositoryIdentifier>""" + config.OAIPMH_IDENTIFIER + """</repositoryIdentifier>
             <delimiter>:</delimiter>
-            <sampleIdentifier>oai:oai.datacite.org:12425</sampleIdentifier>
+            <sampleIdentifier>oai""" + config.OAIPMH_IDENTIFIER + """:1</sampleIdentifier>
         </oai-identifier>
         """
 
