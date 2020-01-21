@@ -178,3 +178,19 @@ def get_metadata_list(
             lookup_cur.execute("""SELECT access.access FROM access JOIN records_x_access on records_x_access.access_id = access.access_id
                 WHERE records_x_access.record_id=?""", (record["record_id"],))
             record["frdr:access"] = rows_to_dict(lookup_cur)
+
+
+def get_metadata(identifier):
+    # Probably need to refactor some of get_metadata_list so it can be run on one record without duplication
+    return None
+
+
+def get_sets():
+    repos_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (
+                    db, user, password, server))
+    with repos_con:
+        repos_cursor = repos_con.cursor()
+
+    repos_cursor.execute("SELECT repository_name from repositories")
+    # Format this properly to return it like the DataCite response
+    return None

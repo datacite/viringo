@@ -115,15 +115,13 @@ class DataCiteOAIServer():
         # From and until parameters aren't supported with Postgres
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
-        results, total_records, paging_cursor = postgres.get_metadata_list(
+        results, total_records, paging_cursor = datacite.get_metadata_list(
             query=search_query,
             provider_id=provider_id,
             client_id=client_id,
-            cursor=paging_cursor,
-            server=config.POSTGRES_SERVER,
-            db=config.POSTGRES_DB,
-            user=config.POSTGRES_USER,
-            password=config.POSTGRES_PASSWORD
+            from_datetime=from_,
+            until_datetime=until,
+            cursor=paging_cursor
         )
 
         records = []
@@ -303,7 +301,7 @@ class PostgresOAIServer():
             toolkit_description=False)
 
         # Specify a custom description
-        datacite_desc = """
+        postgres_desc = """
         <oai-identifier xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
             <scheme>oai</scheme>
             <repositoryIdentifier>""" + config.OAIPMH_IDENTIFIER + """</repositoryIdentifier>
@@ -312,7 +310,7 @@ class PostgresOAIServer():
         </oai-identifier>
         """
 
-        identify.add_description(xml_string=datacite_desc)
+        identify.add_description(xml_string=postgres_desc)
 
         return identify
 
@@ -348,10 +346,9 @@ class PostgresOAIServer():
         #pylint: disable=no-self-use,invalid-name
         """Returns pyoai data tuple for specific record"""
 
-        # We just want the DOI out of the OAI identifier.
-        _, doi = identifier.split(':', 1)
+        # Should we implement this based on source_url and local_identifier the way we currently do for the harvester? 
 
-        result = datacite.get_metadata(doi)
+        result = postgres.get_metadata(identifier)
         if not result:
             raise error.IdDoesNotExistError(
                 "\"%s\" is unknown or illegal in this repository" % identifier
@@ -386,13 +383,15 @@ class PostgresOAIServer():
 
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
-        results, total_records, paging_cursor = datacite.get_metadata_list(
+        results, total_records, paging_cursor = postgres.get_metadata_list(
             query=search_query,
             provider_id=provider_id,
             client_id=client_id,
-            from_datetime=from_,
-            until_datetime=until,
-            cursor=paging_cursor
+            cursor=paging_cursor,
+            server=config.POSTGRES_SERVER,
+            db=config.POSTGRES_DB,
+            user=config.POSTGRES_USER,
+            password=config.POSTGRES_PASSWORD
         )
 
         records = []
@@ -430,12 +429,15 @@ class PostgresOAIServer():
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
 
-        results, total_records, paging_cursor = datacite.get_metadata_list(
+        results, total_records, paging_cursor = postgres.get_metadata_list(
+            query=search_query,
             provider_id=provider_id,
             client_id=client_id,
-            from_datetime=from_,
-            until_datetime=until,
-            cursor=paging_cursor
+            cursor=paging_cursor,
+            server=config.POSTGRES_SERVER,
+            db=config.POSTGRES_DB,
+            user=config.POSTGRES_USER,
+            password=config.POSTGRES_PASSWORD
         )
 
         records = []
@@ -466,7 +468,7 @@ class PostgresOAIServer():
 
         batch_size = 50
         next_batch = paging_cursor + batch_size
-        results, total_results = datacite.get_sets()
+        results, total_results = postgres.get_sets()
         results = results[paging_cursor: next_batch]
 
         if len(results) < batch_size:
