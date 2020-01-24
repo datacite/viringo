@@ -348,7 +348,7 @@ class PostgresOAIServer():
 
         # Should we implement this based on source_url and local_identifier the way we currently do for the harvester? 
 
-        result = postgres.get_metadata(identifier)
+        result = postgres.get_metadata(identifier, db, user, password, server)
         if not result:
             raise error.IdDoesNotExistError(
                 "\"%s\" is unknown or illegal in this repository" % identifier
