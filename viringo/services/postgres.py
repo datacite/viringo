@@ -2,7 +2,107 @@
 
 import psycopg2
 import re
+from datetime import datetime
+import dateutil.parser
+import dateutil.tz
 from viringo import config
+
+class Metadata:
+    """Represents a DataCite metadata resultset"""
+    def __init__(
+            self,
+            identifier=None,
+            created_datetime=None,
+            updated_datetime=None,
+            xml=None,
+            metadata_version=None,
+            titles=None,
+            creators=None,
+            subjects=None,
+            descriptions=None,
+            publisher=None,
+            publication_year=None,
+            dates=None,
+            contributors=None,
+            resource_types=None,
+            funding_references=None,
+            geo_locations=None,
+            formats=None,
+            identifiers=None,
+            language=None,
+            relations=None,
+            rights=None,
+            sizes=None,
+            client=None,
+            active=True
+        ):
+
+        self.identifier = identifier
+        self.created_datetime = created_datetime or datetime.min
+        self.updated_datetime = updated_datetime or datetime.min
+        self.xml = xml
+        self.metadata_version = metadata_version
+        self.titles = titles or []
+        self.creators = creators or []
+        self.subjects = subjects or []
+        self.descriptions = descriptions or []
+        self.publisher = publisher
+        self.publication_year = publication_year
+        self.dates = dates or []
+        self.contributors = contributors or []
+        self.resource_types = resource_types or []
+        self.funding_references = funding_references or []
+        self.geo_locations = geo_locations or []
+        self.formats = formats or []
+        self.identifiers = identifiers or []
+        self.language = language
+        self.relations = relations or []
+        self.rights = rights or []
+        self.sizes = sizes or []
+        self.client = client
+        self.active = active
+
+
+def build_metadata(data):
+    """Parse single postgres result into metadata object"""
+    result = Metadata()
+
+    result.identifier = data['record_id']
+
+    # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
+    # This is because OAI always works in UTC.
+    created = dateutil.parser.parse(data['pub_date'])
+    result.created_datetime = created.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
+    updated = dateutil.parser.parse(data['pub_date'])
+    result.updated_datetime = updated.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
+
+    result.xml = None
+
+    # TODO: should I not be hardcoding this for datacite? add other fields based on current XML export
+    result.metadata_version = 4
+
+    result.titles = [data['title']]
+    result.creators = data['dc:contributor.author']
+    result.subjects = data['dc:subject']
+    result.descriptions = data['dc:description']
+    result.publisher = data['dc:publisher']
+    result.publication_year = dateutil.parser.parse(data['pub_date']).year
+    result.dates = [data['pub_date']]
+    result.contributors = data['dc:contributor']
+    result.funding_references = []
+    result.sizes = []
+    result.geo_locations = data['frdr:geospatial']
+    result.resource_types = []
+    result.formats = []
+    result.identifiers = []
+    result.language = ''
+    result.relations = []
+    result.rights = data['dc:rights']
+    result.client = ''
+    result.active = True
+
+    return result
+
 
 def construct_local_url(record):
         # Check if the local_identifier has already been turned into a url
@@ -14,7 +114,6 @@ def construct_local_url(record):
         oai_search = re.search("oai:(.+):(.+)", record["local_identifier"])
         if oai_search:
             oai_id = oai_search.group(2)
-            # TODO: determine if this is needed for all repos, or just SFU?
             oai_id = oai_id.replace("_", ":")
 
         # If given a pattern then substitue in the item ID and return it
@@ -131,10 +230,6 @@ def assemble_record(record, db, user, password, server):
     return record
 
 
-def build_metadata(full_record):
-    # TODO: construct object to match DataCite reponse and return it
-
-
 def get_metadata_list(
         query=None,
         provider_id=None,
@@ -145,6 +240,8 @@ def get_metadata_list(
         user,
         password
     ):
+
+    # TODO: support listing by set
 
     # Trigger cursor navigation with a starting value
     if not cursor:
