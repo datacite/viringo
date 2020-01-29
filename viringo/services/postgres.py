@@ -77,10 +77,7 @@ def build_metadata(data):
     result.updated_datetime = updated.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
 
     result.xml = None
-
-    # TODO: should I not be hardcoding this for datacite? add other fields based on current XML export
-    result.metadata_version = 4
-
+    result.metadata_version = None
     result.titles = [data['title']]
     result.creators = data['dc:contributor.author']
     result.subjects = data['dc:subject']
@@ -234,7 +231,7 @@ def get_metadata_list(
         query=None,
         provider_id=None,
         client_id=None,
-        cursor=None,
+        records_cursor=None,
         server,
         db,
         user,
@@ -242,10 +239,7 @@ def get_metadata_list(
     ):
 
     # TODO: support listing by set
-
-    # Trigger cursor navigation with a starting value
-    if not cursor:
-        cursor = 1
+    if records_cursor is None:
         records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (db, user, password, server))
         with records_con:
             records_cursor = records_con.cursor()
@@ -261,16 +255,13 @@ def get_metadata_list(
         if full_record is not None:
             results.append(build_metadata(full_record))
 
-    cursor += config.RESULT_SET_SIZE
-    # TODO: Probably need to pass rowcount back to this function for Postgres output
-    return results, records_cursor.rowcount, cursor
+    return results, records_cursor.rowcount, records_cursor
 
 
 def get_metadata(identifier, db, user, password, server):
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (db, user, password, server))
     with records_con:
         records_cursor = records_con.cursor()
-    # TODO: record_id is kind of a meaningless identifier, support local identifier + source URL
     records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =?""", (identifier,))
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
@@ -286,6 +277,5 @@ def get_sets():
         repos_cursor = repos_con.cursor()
 
     repos_cursor.execute("SELECT repository_name from repositories")
-    sets = repos_cursor.fetchall()
-    # TODO: Format this properly to return it like the DataCite response
-    return None
+    results = repos_cursor.fetchall()
+    return results, len(results)
