@@ -128,6 +128,11 @@ def build_metadata(data):
     if data['attributes']['identifiers'] is not None:
         for identifier in data['attributes']['identifiers']:
             if identifier['identifier']:
+                # Special handling for the fact the API could return bad identifier
+                # as a list rather than a string
+                if isinstance(identifier['identifier'], list):
+                    identifier['identifier'] = ','.join(identifier['identifier'])
+
                 result.identifiers.append({
                     'type': identifier['identifierType'],
                     'identifier': strip_uri_prefix(identifier['identifier'])
