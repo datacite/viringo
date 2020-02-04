@@ -158,7 +158,7 @@ def build_metadata(data):
 
     # We make the active decision based upon if there is metadata and the isActive flag
     # This is the same as the previous oai-pmh datacite implementation.
-    result.active = True if result.xml and data.get('isActive', True) else False
+    result.active = True if result.xml and data['attributes'].get('isActive', True) else False
 
     return result
 
