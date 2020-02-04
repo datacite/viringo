@@ -7,7 +7,7 @@ SENTRY_DSN = os.getenv('SENTRY_DSN', None)
 # URL used for the DataCite REST API
 DATACITE_API_URL = os.getenv('DATACITE_API_URL', 'https://api.datacite.org')
 # Admin credentials for the API
-DATACITE_API_ADMIN_USERNAME = os.getenv('DATACITE_API_ADMIN_PASSWORD', 'admin')
+DATACITE_API_ADMIN_USERNAME = os.getenv('DATACITE_API_ADMIN_USERNAME', 'admin')
 DATACITE_API_ADMIN_PASSWORD = os.getenv('DATACITE_API_ADMIN_PASSWORD')
 
 # Name used to identifier the repository.
