@@ -182,6 +182,8 @@ def get_metadata(doi):
     if response.status_code == 200:
         data = response.json()['data']
         return build_metadata(data)
+    elif response.status_code == 404:
+        return None
     else:
         logging.error("Error receiving data from datacite REST API")
 
