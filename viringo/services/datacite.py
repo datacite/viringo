@@ -338,7 +338,7 @@ def api_call_get(url, params=None):
     response = requests.get(
         url,
         params=payload_str,
-        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
+        auth=requests.auth.HTTPBasicAuth(config.DATACITE_API_ADMIN_USERNAME, config.DATACITE_API_ADMIN_PASSWORD)
     )
 
     return response
