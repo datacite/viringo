@@ -20,13 +20,13 @@ OAIPMH_ADMIN_EMAIL = os.getenv('OAIPMH_ADMIN_EMAIL', 'support@datacite.org')
 OAIPMH_IDENTIFIER = os.getenv('OAIPMH_IDENTIFIER', 'oai.datacite.org')
 # Page size of results shown for result listings
 RESULT_SET_SIZE = int(os.getenv('RESULT_SET_SIZE', '50'))
-# Source metadata catalog (DataCite or Postgres)
-CATALOG_SET = os.getenv('OAIPMH_CATALOG', 'Postgres')
-# Postgres server
+# Source metadata catalog (DataCite or FRDR)
+CATALOG_SET = os.getenv('OAIPMH_CATALOG', 'DataCite')
+# FRDR Postgres server
 POSTGRES_SERVER = os.getenv('OAIPMH_POSTGRES_SERVER', '')
-# Postgres db
+# FRDR Postgres db
 POSTGRES_DB = os.getenv('OAIPMH_POSTGRES_DB', '')
-# Postgres user
+# FRDR Postgres user
 POSTGRES_USER = os.getenv('OAIPMH_POSTGRES_USER', '')
-# Postgres password
+# FRDR Postgres password
 POSTGRES_PASSWORD = os.getenv('OAIPMH_POSTGRES_PASSWORD', '')

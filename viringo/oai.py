@@ -12,7 +12,7 @@ import oaipmh.server
 import oaipmh.datestamp
 
 from .catalogs import DataCiteOAIServer
-from .catalogs import PostgresOAIServer
+from .catalogs import FRDROAIServer
 from . import metadata
 from . import config
 
@@ -97,8 +97,8 @@ def get_oai_server():
     if 'oai' not in g:
         if config.CATALOG_SET == 'DateCite':
             catalog_server = DataCiteOAIServer()
-        elif config.CATALOG_SET == 'Postgres':
-            catalog_server = PostgresOAIServer()
+        elif config.CATALOG_SET == 'FRDR':
+            catalog_server = FRDROAIServer()
         else:
             print('No valid metadata catalog configured')
             sys.exit(1)
