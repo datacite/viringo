@@ -489,14 +489,11 @@ class FRDROAIServer():
     def build_header(self, result):
         """Construct a OAI-PMH record header"""
 
-        # Provider symbol can just be extracted from the client symbol
-        provider_symbol, _ = result.client.split(".")
-
         return common.Header(
             None,
-            'doi:' + result.identifier,
+            'doi:' + str(result.identifier),
             result.updated_datetime,
-            setspec=[provider_symbol, result.client],
+            setspec=[result.client],
             deleted=not result.active
         )
 
@@ -510,18 +507,6 @@ class FRDROAIServer():
 
     def build_metadata_map(self, result):
         """Construct a metadata map object for oai metadata writing"""
-        dates = []
-        if result.publication_year:
-            dates.append(str(result.publication_year))
-        dates.extend([date['type'] + ": " + str(date['date']) for date in result.dates])
-
-        rights = []
-        for right in result.rights:
-            if right['statement']:
-                rights.append(right['statement'])
-            if right['uri']:
-                rights.append(right['uri'])
-
         identifiers = [
             identifier_to_string(identifier) for identifier in result.identifiers
         ]
@@ -531,24 +516,20 @@ class FRDROAIServer():
             for relation in result.relations
         ]
 
-        contributors = [
-            contributor.get('name') for contributor in result.contributors
-        ]
-
         metadata = {
             'title': result.titles,
             'creator': result.creators,
             'subject': result.subjects,
             'description': result.descriptions,
             'publisher': [result.publisher] if result.publisher else [],
-            'contributor': contributors,
-            'date': dates,
+            'contributor': result.contributors,
+            'date': result.dates,
             'type': result.resource_types,
             'format': result.formats,
             'identifier': identifiers,
             'relation': relations,
             'language': [result.language] if result.language else [],
-            'rights': rights,
+            'rights': result.rights,
             'xml': result.xml,
             'set': result.client,
             'metadata_version': result.metadata_version

@@ -45,7 +45,7 @@ def oai_dc_writer(element: etree.Element, metadata):
             new_element = etree.SubElement(e_dc, nsdc(name))
             # The regular expression here is to filter only valid XML chars
             # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-            new_element.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', value)
+            new_element.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', str(value))
 
 def datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""

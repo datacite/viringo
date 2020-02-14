@@ -95,7 +95,7 @@ def build_metadata(data):
     result.language = ''
     result.relations = []
     result.rights = data['dc:rights']
-    result.client = ''
+    result.client = data['repository_name']
     result.active = True
 
     return result
@@ -169,8 +169,7 @@ def assemble_record(record, db, user, password, server):
     with con:
         lookup_cur = con.cursor(cursor_factory=None)
 
-        lookup_cur.execute("SELECT coordinate_type, lat, lon FROM geospatial WHERE record_id=?",
-                        (record["record_id"],))
+        lookup_cur.execute("SELECT coordinate_type, lat, lon FROM geospatial WHERE record_id=%s", [record["record_id"]])
         geodata = lookup_cur.fetchall()
         record["frdr:geospatial"] = []
         polycoordinates = []
@@ -188,40 +187,41 @@ def assemble_record(record, db, user, password, server):
             record["frdr:geospatial"].append({"frdr:geospatial_type": "Feature", "frdr:geospatial_geometry": {"frdr:geometry_type": "Polygon", "frdr:geometry_coordinates": polycoordinates}})
 
     with con:
+        from psycopg2.extras import DictCursor
         lookup_cur = con.cursor(cursor_factory=DictCursor)
 
         # attach the other values to the dict
-        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_id=? AND records_x_creators.is_contributor=0 order by records_x_creators_id asc""", (record["record_id"],))
+        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_id=%s AND records_x_creators.is_contributor=0 order by records_x_creators_id asc""", [record["record_id"]])
         record["dc:contributor.author"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT affiliations.affiliation FROM affiliations JOIN records_x_affiliations on records_x_affiliations.affiliation_id = affiliations.affiliation_id WHERE records_x_affiliations.record_id=?""", (record["record_id"],))
+        lookup_cur.execute("""SELECT affiliations.affiliation FROM affiliations JOIN records_x_affiliations on records_x_affiliations.affiliation_id = affiliations.affiliation_id WHERE records_x_affiliations.record_id=%s""", [record["record_id"]])
         record["datacite:creatorAffiliation"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_id=? AND records_x_creators.is_contributor=1 order by records_x_creators_id asc""", (record["record_id"],))
+        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_id=%s AND records_x_creators.is_contributor=1 order by records_x_creators_id asc""", [record["record_id"]])
         record["dc:contributor"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT subjects.subject FROM subjects JOIN records_x_subjects on records_x_subjects.subject_id = subjects.subject_id WHERE records_x_subjects.record_id=?""", (record["record_id"],))
+        lookup_cur.execute("""SELECT subjects.subject FROM subjects JOIN records_x_subjects on records_x_subjects.subject_id = subjects.subject_id WHERE records_x_subjects.record_id=%s""", [record["record_id"]])
         record["dc:subject"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT publishers.publisher FROM publishers JOIN records_x_publishers on records_x_publishers.publisher_id = publishers.publisher_id WHERE records_x_publishers.record_id=?""", (record["record_id"],))
+        lookup_cur.execute("""SELECT publishers.publisher FROM publishers JOIN records_x_publishers on records_x_publishers.publisher_id = publishers.publisher_id WHERE records_x_publishers.record_id=%s""", [record["record_id"]])
         record["dc:publisher"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT rights.rights FROM rights JOIN records_x_rights on records_x_rights.rights_id = rights.rights_id WHERE records_x_rights.record_id=?""", (record["record_id"],))
+        lookup_cur.execute("""SELECT rights.rights FROM rights JOIN records_x_rights on records_x_rights.rights_id = rights.rights_id WHERE records_x_rights.record_id=%s""", [record["record_id"]])
         record["dc:rights"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("SELECT description FROM descriptions WHERE record_id=? and language='en' "), (record["record_id"],)
+        lookup_cur.execute("SELECT description FROM descriptions WHERE record_id=%s and language='en' ", [record["record_id"]])
         record["dc:description"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("SELECT description FROM descriptions WHERE record_id=? and language='fr' "), (record["record_id"],)
+        lookup_cur.execute("SELECT description FROM descriptions WHERE record_id=%s and language='fr' ", [record["record_id"]])
         record["frdr:description_fr"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_id=? and tags.language = 'en' """, (record["record_id"],))
+        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_id=%s and tags.language = 'en' """, [record["record_id"]])
         record["frdr:tags"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_id=? and tags.language = 'fr' """, (record["record_id"],))
+        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_id=%s and tags.language = 'fr' """, [record["record_id"]])
         record["frdr:tags_fr"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT access.access FROM access JOIN records_x_access on records_x_access.access_id = access.access_id WHERE records_x_access.record_id=?""", (record["record_id"],))
+        lookup_cur.execute("""SELECT access.access FROM access JOIN records_x_access on records_x_access.access_id = access.access_id WHERE records_x_access.record_id=%s""", [record["record_id"]])
         record["frdr:access"] = rows_to_dict(lookup_cur)
 
     return record
@@ -262,7 +262,7 @@ def get_metadata(identifier, db, user, password, server):
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (db, user, password, server))
     with records_con:
         records_cursor = records_con.cursor()
-    records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =?""", (identifier,))
+    records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =%s""", [identifier])
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
     record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp'], row)))
