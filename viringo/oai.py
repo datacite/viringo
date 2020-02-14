@@ -16,6 +16,8 @@ from .catalogs import FRDROAIServer
 from . import metadata
 from . import config
 
+import sys
+
 BP = Blueprint('oai', __name__)
 
 class XMLTreeServer(oaipmh.server.XMLTreeServer):

@@ -347,7 +347,7 @@ class FRDROAIServer():
 
         # Should we implement this based on source_url and local_identifier the way we currently do for the harvester? 
 
-        result = frdr.get_metadata(identifier, db, user, password, server)
+        result = frdr.get_metadata(identifier, db=config.POSTGRES_DB, user=config.POSTGRES_USER, password=config.POSTGRES_PASSWORD, server=config.POSTGRES_SERVER)
         if not result:
             raise error.IdDoesNotExistError(
                 "\"%s\" is unknown or illegal in this repository" % identifier
@@ -384,14 +384,14 @@ class FRDROAIServer():
         # Get both a provider and client_id from the set
         provider_id, client_id = set_to_provider_client(set)
         results, total_records, paging_cursor = frdr.get_metadata_list(
-            query=search_query,
-            provider_id=provider_id,
-            client_id=client_id,
-            cursor=paging_cursor,
             server=config.POSTGRES_SERVER,
             db=config.POSTGRES_DB,
             user=config.POSTGRES_USER,
-            password=config.POSTGRES_PASSWORD
+            password=config.POSTGRES_PASSWORD,
+            query=search_query,
+            provider_id=provider_id,
+            client_id=client_id,
+            records_cursor=paging_cursor
         )
 
         records = []
@@ -430,14 +430,14 @@ class FRDROAIServer():
         provider_id, client_id = set_to_provider_client(set)
 
         results, total_records, paging_cursor = frdr.get_metadata_list(
-            query=search_query,
-            provider_id=provider_id,
-            client_id=client_id,
-            cursor=paging_cursor,
             server=config.POSTGRES_SERVER,
             db=config.POSTGRES_DB,
             user=config.POSTGRES_USER,
-            password=config.POSTGRES_PASSWORD
+            password=config.POSTGRES_PASSWORD,
+            query=search_query,
+            provider_id=provider_id,
+            client_id=client_id,
+            records_cursor=paging_cursor
         )
 
         records = []
@@ -468,7 +468,7 @@ class FRDROAIServer():
 
         batch_size = 50
         next_batch = paging_cursor + batch_size
-        results, total_results = frdr.get_sets()
+        results, total_results = frdr.get_sets(db=config.POSTGRES_DB, user=config.POSTGRES_USER, password=config.POSTGRES_PASSWORD, server=config.POSTGRES_SERVER)
         results = results[paging_cursor: next_batch]
 
         if len(results) < batch_size:
