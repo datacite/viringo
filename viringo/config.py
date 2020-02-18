@@ -30,3 +30,5 @@ POSTGRES_DB = os.getenv('OAIPMH_POSTGRES_DB', '')
 POSTGRES_USER = os.getenv('OAIPMH_POSTGRES_USER', '')
 # FRDR Postgres password
 POSTGRES_PASSWORD = os.getenv('OAIPMH_POSTGRES_PASSWORD', '')
+# FRDR Postgres port
+POSTGRES_PORT = os.getenv('OAIPMH_POSTGRES_PORT', '5432')

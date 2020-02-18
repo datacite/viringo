@@ -154,7 +154,7 @@ def rows_to_dict(cursor):
         return newdict
 
 
-def assemble_record(record, db, user, password, server):
+def assemble_record(record, db, user, password, server, port):
     record["dc:source"] = construct_local_url(record)
     if record["dc:source"] is None:
         return None
@@ -165,7 +165,7 @@ def assemble_record(record, db, user, password, server):
     if (len(record['title']) == 0):
         return None
 
-    con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (db, user, password, server))
+    con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with con:
         lookup_cur = con.cursor(cursor_factory=None)
 
@@ -232,34 +232,36 @@ def get_metadata_list(
         db,
         user,
         password,
+        port,
         query=None,
         provider_id=None,
         client_id=None,
-        records_cursor=None
+        cursor=None
     ):
 
     # TODO: support listing by set
-    if records_cursor is None:
-        records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (db, user, password, server))
-        with records_con:
-            records_cursor = records_con.cursor()
-        records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
-        records_cursor.execute(records_sql)
+    records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
+    with records_con:
+        db_cursor = records_con.cursor()
+    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
+    if cursor is not None:
+        records_sql = records_sql + " OFFSET " + cursor
+    db_cursor.execute(records_sql)
 
-    record_set = records_cursor.fetchmany(config.RESULT_SET_SIZE)
+    record_set = db_cursor.fetchmany(config.RESULT_SET_SIZE)
     results = []
     for row in record_set:
         record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp'], row)))
 
-        full_record = assemble_record(record, db, user, password, server)
+        full_record = assemble_record(record, db, user, password, server, port)
         if full_record is not None:
             results.append(build_metadata(full_record))
 
-    return results, records_cursor.rowcount, records_cursor
+    return results, db_cursor.rowcount, len(record_set)
 
 
-def get_metadata(identifier, db, user, password, server):
-    records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (db, user, password, server))
+def get_metadata(identifier, db, user, password, server, port):
+    records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
     records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =%s""", [identifier])
@@ -267,13 +269,13 @@ def get_metadata(identifier, db, user, password, server):
     row = records_cursor.fetchone()
     record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp'], row)))
 
-    full_record = assemble_record(record, db, user, password, server)
+    full_record = assemble_record(record, db, user, password, server, port)
     return build_metadata(full_record)
 
 
-def get_sets(db, user, password, server):
+def get_sets(db, user, password, server, port):
     # TODO: this is returning the wrong number of parameters
-    repos_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s'" % (db, user, password, server))
+    repos_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with repos_con:
         repos_cursor = repos_con.cursor()
 
