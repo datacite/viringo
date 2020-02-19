@@ -86,16 +86,16 @@ def build_metadata(data):
     result.publication_year = dateutil.parser.parse(data['pub_date']).year
     result.dates = [data['pub_date']]
     result.contributors = data['dc:contributor']
-    result.funding_references = []
+    result.funding_references = data['contact']
     result.sizes = []
     result.geo_locations = data['frdr:geospatial']
-    result.resource_types = []
+    result.resource_types = [data['frdr:tags']]
     result.formats = []
     result.identifiers = []
     result.language = ''
     result.relations = []
     result.rights = data['dc:rights']
-    result.client = data['repository_name']
+    result.client = data['repository_url'].split('//')[1].split('/')[0]
     result.active = True
 
     return result
@@ -234,16 +234,16 @@ def get_metadata_list(
         password,
         port,
         query=None,
-        provider_id=None,
-        client_id=None,
+        set=None,
         cursor=None
     ):
 
-    # TODO: support listing by set
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         db_cursor = records_con.cursor()
     records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
+    if set is not None:
+        records_sql = records_sql + " AND (repos.homepage_url='http://" + set + "/' OR repos.homepage_url='https://" + set + "/')"
     if cursor is not None:
         records_sql = records_sql + " OFFSET " + cursor
     db_cursor.execute(records_sql)
@@ -264,7 +264,7 @@ def get_metadata(identifier, db, user, password, server, port):
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
-    records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =%s""", [identifier])
+    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =""" + identifier
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
     record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp'], row)))
@@ -274,11 +274,10 @@ def get_metadata(identifier, db, user, password, server, port):
 
 
 def get_sets(db, user, password, server, port):
-    # TODO: this is returning the wrong number of parameters
     repos_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with repos_con:
         repos_cursor = repos_con.cursor()
 
-    repos_cursor.execute("SELECT repository_name from repositories")
+    repos_cursor.execute("SELECT homepage_url, repository_name from repositories")
     results = repos_cursor.fetchall()
     return results, len(results)

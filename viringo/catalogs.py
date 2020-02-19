@@ -380,9 +380,6 @@ class FRDROAIServer():
         # If available get the search query from the set param
         search_query = set_to_search_query(set)
 
-        # From and until parameters aren't supported with FRDR
-        # Get both a provider and client_id from the set
-        provider_id, client_id = set_to_provider_client(set)
         results, total_records, paging_cursor = frdr.get_metadata_list(
             server=config.POSTGRES_SERVER,
             db=config.POSTGRES_DB,
@@ -390,8 +387,7 @@ class FRDROAIServer():
             password=config.POSTGRES_PASSWORD,
             port=config.POSTGRES_PORT,
             query=search_query,
-            provider_id=provider_id,
-            client_id=client_id,
+            set=set,
             cursor=paging_cursor
         )
 
@@ -422,13 +418,13 @@ class FRDROAIServer():
             from_=None,
             until=None,
             set=None,
-            cursor=None
+            paging_cursor=None
         ):
         #pylint: disable=no-self-use,invalid-name
         """Returns pyoai data tuple for list of identifiers"""
 
-        # Get both a provider and client_id from the set
-        provider_id, client_id = set_to_provider_client(set)
+        # If available get the search query from the set param
+        search_query = set_to_search_query(set)
 
         results, total_records, paging_cursor = frdr.get_metadata_list(
             server=config.POSTGRES_SERVER,
@@ -437,8 +433,7 @@ class FRDROAIServer():
             password=config.POSTGRES_PASSWORD,
             port=config.POSTGRES_PORT,
             query=search_query,
-            provider_id=provider_id,
-            client_id=client_id,
+            set=set,
             cursor=paging_cursor
         )
 
@@ -482,7 +477,7 @@ class FRDROAIServer():
         if results:
             for identifier, name in results:
                 # Format of a set is setSpec, setName, setDescription
-                records.append((identifier.upper(), name, None))
+                records.append((identifier.split('//')[1].split('/')[0], name, None))
 
         # This differs from the pyoai implementation in that we have to return a cursor here
         # But this is okay as we have a custom server to handle it.
@@ -493,7 +488,7 @@ class FRDROAIServer():
 
         return common.Header(
             None,
-            'doi:' + str(result.identifier),
+            str(result.identifier),
             result.updated_datetime,
             setspec=[result.client],
             deleted=not result.active
