@@ -263,6 +263,7 @@ def get_sets():
 
     while next_url:
         params = {
+            'include': 'provider',
             'page[size]': 1000,
         }
 
