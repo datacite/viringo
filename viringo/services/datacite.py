@@ -166,7 +166,7 @@ def strip_uri_prefix(identifier):
     """Strip common prefixes because OAI doesn't work with those kind of ID's"""
     if identifier:
         if identifier.startswith("https://doi.org/"):
-            _, identifier = identifier.split("https://doi.org/")
+            _, identifier = identifier.split("https://doi.org/", 1)
     else:
         identifier = ''
     return identifier
