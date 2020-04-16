@@ -477,7 +477,7 @@ class FRDROAIServer():
         if results:
             for identifier, name in results:
                 # Format of a set is setSpec, setName, setDescription
-                records.append((identifier.split('//')[1].split('/')[0], name, None))
+                records.append((identifier, name, None))
 
         # This differs from the pyoai implementation in that we have to return a cursor here
         # But this is okay as we have a custom server to handle it.

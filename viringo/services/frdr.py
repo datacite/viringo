@@ -95,7 +95,7 @@ def build_metadata(data):
     result.language = ''
     result.relations = []
     result.rights = data['dc:rights']
-    result.client = data['repository_url'].split('//')[1].split('/')[0]
+    result.client = data['homepage_url']
     result.active = True
 
     return result
@@ -241,17 +241,18 @@ def get_metadata_list(
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         db_cursor = records_con.cursor()
-    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
-    if set is not None:
-        records_sql = records_sql + " AND (repos.homepage_url='http://" + set + "/' OR repos.homepage_url='https://" + set + "/')"
+    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
+    if set is not None and set != 'openaire_data':
+        records_sql = records_sql + " AND (repos.homepage_url='" + set + "')"
     if cursor is not None:
         records_sql = records_sql + " OFFSET " + cursor
     db_cursor.execute(records_sql)
 
     record_set = db_cursor.fetchmany(config.RESULT_SET_SIZE)
+
     results = []
     for row in record_set:
-        record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp'], row)))
+        record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
 
         full_record = assemble_record(record, db, user, password, server, port)
         if full_record is not None:
@@ -264,10 +265,10 @@ def get_metadata(identifier, db, user, password, server, port):
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
-    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =""" + identifier
+    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =""" + identifier
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
-    record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp'], row)))
+    record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
 
     full_record = assemble_record(record, db, user, password, server, port)
     return build_metadata(full_record)
@@ -280,4 +281,7 @@ def get_sets(db, user, password, server, port):
 
     repos_cursor.execute("SELECT homepage_url, repository_name from repositories")
     results = repos_cursor.fetchall()
+
+    results.append(['openaire_data', 'OpenAIRE'])
+
     return results, len(results)
