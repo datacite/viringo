@@ -6,6 +6,7 @@ from datetime import datetime
 import dateutil.parser
 import dateutil.tz
 from viringo import config
+import xml.etree.cElementTree as ET
 
 class Metadata:
     """Represents a DataCite metadata resultset"""
@@ -62,6 +63,93 @@ class Metadata:
         self.client = client
         self.active = active
 
+def construct_datacite_xml(data):
+    resource = ET.Element("resource")
+    resource.set("xmlns", "http://datacite.org/schema/kernel-4")
+    resource.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    resource.set("xsi:schemaLocation",
+                 "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd")
+
+    # Add resource URL as identifier
+    identifier = ET.SubElement(resource, "identifier")
+    identifier.set("identifierType", "URL")
+    identifier.text = data['source_url']
+    if data['source_url'] == '':
+        if data['item_url_pattern'] != '' and "%id%" in data['item_url_pattern'] and data['local_identifier'] != '':
+            identifier.text = data['item_url_pattern'].replace("%id%", data['local_identifier'])
+
+    # Add creators
+    creators = ET.SubElement(resource, "creators")
+    for creator_entry in data['dc:contributor.author']:
+        creator = ET.SubElement(creators, "creator")
+        creatorName = ET.SubElement(creator, "creatorName")
+        creatorName.text = creator_entry
+
+    # Add title
+    titles = ET.SubElement(resource, "titles")
+    title = ET.SubElement(titles, "title")
+    title.text = data['title']
+
+    # Add publisher
+    publisher = ET.SubElement(resource, "publisher")
+    publisher.text = data['repository_name']
+
+    # Add publication year
+    publicationyear = ET.SubElement(resource, "publicationyear")
+    publicationyear.text = data['pub_date'][:4]
+
+    # Add subjects
+    subject_and_tags = []
+    subjects = ET.SubElement(resource, "subjects")
+    for subject_entry in data['dc:subject'] + data['frdr:tags'] + data['frdr:tags_fr']:
+        if subject_entry not in subject_and_tags:
+            subject_and_tags.append(subject_entry)
+            subject = ET.SubElement(subjects, "subject")
+            subject.text = subject_entry
+
+    # Add dates
+    dates = ET.SubElement(resource, "dates")
+    date = ET.SubElement(dates, "date")
+    date.set("dateType", "Issued")
+    date.text = data['pub_date']
+
+    # Add resourceType
+    resourceType = ET.SubElement(resource, "resourceType")
+    resourceType.set("resourceTypeGeneral", "Dataset")
+    resourceType.text = "Dataset"
+
+    # Add alternateIdentifiers
+    alternateIdentifiers = ET.SubElement(resource, "alternateIdentifiers")
+    alternateIdentifier = ET.SubElement(alternateIdentifiers, "alternateIdentifier")
+    alternateIdentifier.set("alternateIdentifierType", "local")
+    alternateIdentifier.text = data['local_identifier']
+
+    # Add relatedIdentifiers (series)
+    if data['series'] != "":
+        relatedIdentifiers = ET.SubElement(resource, "relatedIdentifiers")
+        relatedIdentifier = ET.SubElement(relatedIdentifiers, "relatedIdentifier")
+        relatedIdentifier.set("relationType", "isPartOf")
+        relatedIdentifier.text = data['series']
+
+    # Add rightsList
+    rightsList = ET.SubElement(resource, "rightsList")
+    for rights_entry in data['dc:rights']:
+        rights = ET.SubElement(rightsList, "rights")
+        rights.text = rights_entry
+        if "http" in rights_entry:
+            rights.set("rightsURI", rights_entry[rights_entry.find("http"):].strip())
+            rights.text = rights_entry[:rights_entry.find("http")].strip()
+
+    # Add description(s)
+    descriptions = ET.SubElement(resource, "descriptions")
+    for description_entry in data['dc:description'] + data['frdr:description_fr']:
+        if description_entry != "":
+            description = ET.SubElement(descriptions, "description")
+            description.set("descriptionType", "Abstract")
+            description.text = description_entry
+    xml_string = ET.tostring(resource)
+    print(xml_string)
+    return xml_string
 
 def build_metadata(data):
     """Parse single FRDR result into metadata object"""
@@ -76,7 +164,7 @@ def build_metadata(data):
     updated = dateutil.parser.parse(data['pub_date'])
     result.updated_datetime = updated.astimezone(dateutil.tz.UTC).replace(tzinfo=None)
 
-    result.xml = None
+    result.xml = construct_datacite_xml(data)
     result.metadata_version = None
     result.titles = [data['title']]
     result.creators = data['dc:contributor.author']
