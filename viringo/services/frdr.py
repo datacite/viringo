@@ -149,7 +149,6 @@ def construct_datacite_xml(data):
             description.set("descriptionType", "Abstract")
             description.text = description_entry
     xml_string = ET.tostring(resource)
-    print(xml_string)
     return xml_string
 
 def build_metadata(data):
@@ -182,7 +181,7 @@ def build_metadata(data):
     result.publication_year = dateutil.parser.parse(data['pub_date']).year
     result.dates = [data['pub_date']]
     result.contributors = data['dc:contributor']
-    result.funding_references = data['contact']
+    result.funding_references = ''
     result.sizes = []
     result.geo_locations = data['frdr:geospatial']
     result.resource_types = ['Dataset']
