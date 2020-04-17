@@ -139,14 +139,17 @@ def construct_datacite_xml(data):
         relatedIdentifier.text = data['series']
 
     # Add rightsList
-    if len(data['dc:rights']) > 0:
-        rightsList = ET.SubElement(resource, "rightsList")
-        for rights_entry in data['dc:rights']:
+    rightsList = ET.SubElement(resource, "rightsList")
+    for rights_entry in data['dc:rights'] + data['frdr:access']:
+        if rights_entry != '':
             rights = ET.SubElement(rightsList, "rights")
             rights.text = rights_entry
             if "http" in rights_entry:
                 rights.set("rightsURI", rights_entry[rights_entry.find("http"):].strip())
                 rights.text = rights_entry[:rights_entry.find("http")].strip()
+    # If rightsList is empty, remove it
+    if len(rightsList) == 0:
+        resource.remove(rightsList)
 
     # Add description(s)
     descriptions = ET.SubElement(resource, "descriptions")
@@ -155,6 +158,10 @@ def construct_datacite_xml(data):
             description = ET.SubElement(descriptions, "description")
             description.set("descriptionType", "Abstract")
             description.text = description_entry
+    # If descriptions is empty, remove it
+    if len(descriptions) == 0:
+        resource.remove(descriptions)
+
     xml_string = ET.tostring(resource)
     return xml_string
 
