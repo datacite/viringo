@@ -178,7 +178,7 @@ def build_metadata(data):
     result.funding_references = data['contact']
     result.sizes = []
     result.geo_locations = data['frdr:geospatial']
-    result.resource_types = [data['frdr:tags']]
+    result.resource_types = ['Dataset']
     result.formats = []
     result.identifiers = []
     result.language = ''
