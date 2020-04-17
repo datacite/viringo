@@ -169,7 +169,14 @@ def build_metadata(data):
     result.metadata_version = None
     result.titles = [data['title']]
     result.creators = data['dc:contributor.author']
-    result.subjects = data['dc:subject']
+    result.subjects = []
+
+    # De-duplicate subjects and tags
+    for subject in data['dc:subject'] + data['frdr:tags'] + data['frdr:tags_fr']:
+        if subject not in result.subjects:
+            result.subjects.append(subject)
+
+    # TODO: Add French description
     result.descriptions = data['dc:description']
     result.publisher = data['dc:publisher']
     result.publication_year = dateutil.parser.parse(data['pub_date']).year
