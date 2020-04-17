@@ -107,6 +107,13 @@ def construct_datacite_xml(data):
             subject = ET.SubElement(subjects, "subject")
             subject.text = subject_entry
 
+    # Add FRDR as HostingInstituton
+    contributors = ET.SubElement(resource, "contributors")
+    contributor = ET.SubElement(contributors, "contributor")
+    contributor.set("contributorType", "HostingInstitution")
+    contributorName = ET.SubElement(contributor, "contributorName")
+    contributorName.text = "Federated Research Data Repository / dépôt fédéré de données de recherche"
+
     # Add dates
     dates = ET.SubElement(resource, "dates")
     date = ET.SubElement(dates, "date")
