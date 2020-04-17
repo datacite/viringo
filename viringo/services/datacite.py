@@ -128,6 +128,11 @@ def build_metadata(data):
     if data['attributes']['identifiers'] is not None:
         for identifier in data['attributes']['identifiers']:
             if identifier['identifier']:
+                # Special handling for the fact the API could return bad identifier
+                # as a list rather than a string
+                if isinstance(identifier['identifier'], list):
+                    identifier['identifier'] = ','.join(identifier['identifier'])
+
                 result.identifiers.append({
                     'type': identifier['identifierType'],
                     'identifier': strip_uri_prefix(identifier['identifier'])
@@ -153,7 +158,7 @@ def build_metadata(data):
 
     # We make the active decision based upon if there is metadata and the isActive flag
     # This is the same as the previous oai-pmh datacite implementation.
-    result.active = True if result.xml and data.get('isActive', True) else False
+    result.active = True if result.xml and data['attributes'].get('isActive', True) else False
 
     return result
 
@@ -161,7 +166,7 @@ def strip_uri_prefix(identifier):
     """Strip common prefixes because OAI doesn't work with those kind of ID's"""
     if identifier:
         if identifier.startswith("https://doi.org/"):
-            _, identifier = identifier.split("https://doi.org/")
+            _, identifier = identifier.split("https://doi.org/", 1)
     else:
         identifier = ''
     return identifier
@@ -177,6 +182,8 @@ def get_metadata(doi):
     if response.status_code == 200:
         data = response.json()['data']
         return build_metadata(data)
+    elif response.status_code == 404:
+        return None
     else:
         logging.error("Error receiving data from datacite REST API")
 
@@ -256,6 +263,7 @@ def get_sets():
 
     while next_url:
         params = {
+            'include': 'provider',
             'page[size]': 1000,
         }
 
@@ -331,7 +339,8 @@ def api_call_get(url, params=None):
     response = requests.get(
         url,
         params=payload_str,
-        auth=requests.auth.HTTPBasicAuth(config.API_ADMIN_USERNAME, config.API_ADMIN_PASSWORD)
+        auth=requests.auth.HTTPBasicAuth(config.DATACITE_API_ADMIN_USERNAME, config.DATACITE_API_ADMIN_PASSWORD),
+        timeout=30
     )
 
     return response
