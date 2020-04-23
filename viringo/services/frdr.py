@@ -169,7 +169,7 @@ def build_metadata(data):
     """Parse single FRDR result into metadata object"""
     result = Metadata()
 
-    result.identifier = data['record_id']
+    result.identifier = data['dc:source']
 
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
     # This is because OAI always works in UTC.
@@ -234,7 +234,7 @@ def construct_local_url(record):
         doi = re.search("(doi|DOI):\s?\S+", record["local_identifier"])
         if doi:
             doi = doi.group(0).rstrip('\.')
-            local_url = re.sub("(doi|DOI):\s?", "https://dx.doi.org/", doi)
+            local_url = re.sub("(doi|DOI):\s?", "https://doi.org/", doi)
             return local_url
 
         # If the item has a source URL, use it
