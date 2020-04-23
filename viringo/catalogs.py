@@ -388,6 +388,8 @@ class FRDROAIServer():
             port=config.POSTGRES_PORT,
             query=search_query,
             set=set,
+            from_datetime=from_,
+            until_datetime=until,
             cursor=paging_cursor
         )
 
@@ -434,6 +436,8 @@ class FRDROAIServer():
             port=config.POSTGRES_PORT,
             query=search_query,
             set=set,
+            from_datetime=from_,
+            until_datetime=until,
             cursor=paging_cursor
         )
 

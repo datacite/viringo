@@ -344,6 +344,8 @@ def get_metadata_list(
         port,
         query=None,
         set=None,
+        from_datetime=None,
+        until_datetime=None,
         cursor=None
     ):
 
@@ -353,6 +355,10 @@ def get_metadata_list(
     records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
     if set is not None and set != 'openaire_data':
         records_sql = records_sql + " AND (repos.homepage_url='" + set + "')"
+    if from_datetime is not None:
+        records_sql = records_sql + " AND recs.pub_date>='" + from_datetime + "'"
+    if until_datetime is not None:
+        records_sql = records_sql + " AND recs.pub_date<'" + until_datetime + "'"
     if cursor is not None:
         records_sql = records_sql + " OFFSET " + cursor
     db_cursor.execute(records_sql)
