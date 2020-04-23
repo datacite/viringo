@@ -294,7 +294,7 @@ class FRDROAIServer():
             protocolVersion="2.0",
             adminEmails=[config.OAIPMH_ADMIN_EMAIL],
             earliestDatestamp=datetime(2011, 1, 1),
-            deletedRecord='persistent',
+            deletedRecord='no',
             granularity='YYYY-MM-DDThh:mm:ssZ',
             compression=['gzip', 'deflate'],
             toolkit_description=False)
