@@ -508,9 +508,7 @@ class FRDROAIServer():
 
     def build_metadata_map(self, result):
         """Construct a metadata map object for oai metadata writing"""
-        identifiers = [
-            identifier_to_string(identifier) for identifier in result.identifiers
-        ]
+        identifiers = result.identifiers
 
         relations = [
             identifier_to_string(relation)

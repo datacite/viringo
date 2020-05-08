@@ -169,7 +169,7 @@ def build_metadata(data):
     """Parse single FRDR result into metadata object"""
     result = Metadata()
 
-    result.identifier = data['dc:source']
+    result.identifier = data['record_id']
 
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
     # This is because OAI always works in UTC.
@@ -206,6 +206,8 @@ def build_metadata(data):
     result.rights = data['dc:rights']
     result.client = data['homepage_url']
     result.active = True
+
+    result.identifiers.append(construct_local_url(data))
 
     return result
 
