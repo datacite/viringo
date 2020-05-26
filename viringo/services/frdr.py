@@ -73,10 +73,7 @@ def construct_datacite_xml(data):
     # Add resource URL as identifier
     identifier = ET.SubElement(resource, "identifier")
     identifier.set("identifierType", "URL")
-    identifier.text = data['source_url']
-    if data['source_url'] == '':
-        if data['item_url_pattern'] != '' and "%id%" in data['item_url_pattern'] and data['local_identifier'] != '':
-            identifier.text = data['item_url_pattern'].replace("%id%", data['local_identifier'])
+    identifier.text = data['item_url']
 
     # Add creators
     creators = ET.SubElement(resource, "creators")
@@ -169,7 +166,7 @@ def build_metadata(data):
     """Parse single FRDR result into metadata object"""
     result = Metadata()
 
-    result.identifier = data['record_id']
+    result.identifier = "oai:" + data['item_url'] # Add oai: to identifier URL
 
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
     # This is because OAI always works in UTC.
@@ -207,50 +204,9 @@ def build_metadata(data):
     result.client = data['homepage_url']
     result.active = True
 
-    result.identifiers.append(construct_local_url(data))
+    result.identifiers.append(data['item_url'])
 
     return result
-
-
-def construct_local_url(record):
-        # Check if the local_identifier has already been turned into a url
-        if "http" in record["local_identifier"].lower():
-            return record["local_identifier"]
-
-        # Check for OAI format of identifier (oai:domain:id)
-        oai_id = None
-        oai_search = re.search("oai:(.+):(.+)", record["local_identifier"])
-        if oai_search:
-            oai_id = oai_search.group(2)
-            oai_id = oai_id.replace("_", ":")
-
-        # If given a pattern then substitue in the item ID and return it
-        if "item_url_pattern" in record and record["item_url_pattern"]:
-            if oai_id:
-                local_url = re.sub("(\%id\%)", oai_id, record["item_url_pattern"])
-            else:
-                local_url = re.sub("(\%id\%)", record["local_identifier"], record["item_url_pattern"])
-            return local_url
-
-        # Check if the identifier is a DOI
-        doi = re.search("(doi|DOI):\s?\S+", record["local_identifier"])
-        if doi:
-            doi = doi.group(0).rstrip('\.')
-            local_url = re.sub("(doi|DOI):\s?", "https://doi.org/", doi)
-            return local_url
-
-        # If the item has a source URL, use it
-        if ('source_url' in record) and record['source_url']:
-            return record['source_url']
-
-        # URL is in the identifier
-        local_url = re.search("(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?",
-                              record["local_identifier"])
-        if local_url:
-            return local_url.group(0)
-
-        local_url = None
-        return local_url
 
 
 def rows_to_dict(cursor):
@@ -266,8 +222,8 @@ def rows_to_dict(cursor):
 
 
 def assemble_record(record, db, user, password, server, port):
-    record["dc:source"] = construct_local_url(record)
-    if record["dc:source"] is None:
+
+    if record["item_url"] is None:
         return None
         
     if int(record["deleted"]) == 1:
@@ -354,7 +310,7 @@ def get_metadata_list(
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         db_cursor = records_con.cursor()
-    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
+    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
     if set is not None and set != 'openaire_data':
         records_sql = records_sql + " AND (repos.homepage_url='" + set + "')"
     if from_datetime is not None:
@@ -369,7 +325,7 @@ def get_metadata_list(
 
     results = []
     for row in record_set:
-        record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
+        record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
 
         full_record = assemble_record(record, db, user, password, server, port)
         if full_record is not None:
@@ -382,10 +338,14 @@ def get_metadata(identifier, db, user, password, server, port):
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
-    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.record_id =""" + identifier
+    records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, 
+    recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, 
+    repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, 
+    repos.homepage_url FROM records recs, repositories repos 
+    WHERE recs.repository_id = repos.repository_id AND recs.item_url =\'""" + identifier[4:] + "\'")  # use identifier substring excluding oai: prefix
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
-    record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
+    record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
 
     full_record = assemble_record(record, db, user, password, server, port)
     return build_metadata(full_record)
