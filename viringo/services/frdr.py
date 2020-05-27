@@ -128,13 +128,6 @@ def construct_datacite_xml(data):
     alternateIdentifier.set("alternateIdentifierType", "local")
     alternateIdentifier.text = data['local_identifier']
 
-    # Add relatedIdentifiers (series)
-    if data['series'] != "":
-        relatedIdentifiers = ET.SubElement(resource, "relatedIdentifiers")
-        relatedIdentifier = ET.SubElement(relatedIdentifiers, "relatedIdentifier")
-        relatedIdentifier.set("relationType", "isPartOf")
-        relatedIdentifier.text = data['series']
-
     # Add rightsList
     rightsList = ET.SubElement(resource, "rightsList")
     for rights_entry in data['dc:rights'] + data['frdr:access']:
@@ -155,6 +148,13 @@ def construct_datacite_xml(data):
             description = ET.SubElement(descriptions, "description")
             description.set("descriptionType", "Abstract")
             description.text = description_entry
+
+    # Add series (series)
+    if data['series'] != "":
+        description_series = ET.SubElement(descriptions, "description")
+        description_series.set("descriptionType", "SeriesInformation")
+        description_series.text = data['series']
+
     # If descriptions is empty, remove it
     if len(descriptions) == 0:
         resource.remove(descriptions)
