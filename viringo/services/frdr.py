@@ -92,7 +92,7 @@ def construct_datacite_xml(data):
     publisher.text = data['repository_name']
 
     # Add publication year
-    publicationyear = ET.SubElement(resource, "publicationyear")
+    publicationyear = ET.SubElement(resource, "publicationYear")
     publicationyear.text = data['pub_date'][:4]
 
     # Add subjects
