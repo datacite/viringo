@@ -356,9 +356,10 @@ def get_sets(db, user, password, server, port):
     with repos_con:
         repos_cursor = repos_con.cursor()
 
-    repos_cursor.execute("SELECT homepage_url, repository_name from repositories")
-    results = repos_cursor.fetchall()
-
+    results = []
     results.append(['openaire_data', 'OpenAIRE'])
+
+    repos_cursor.execute("SELECT homepage_url, repository_name from repositories")
+    results.extend(repos_cursor.fetchall())
 
     return results, len(results)
