@@ -164,11 +164,11 @@ def build_metadata(data):
 
 def strip_uri_prefix(identifier):
     """Strip common prefixes because OAI doesn't work with those kind of ID's"""
-    if identifier:
+    if identifier and isinstance(identifier, str):
         if identifier.startswith("https://doi.org/"):
             _, identifier = identifier.split("https://doi.org/", 1)
     else:
-        identifier = ''
+        identifier = str(identifier)
     return identifier
 
 def get_metadata(doi):
