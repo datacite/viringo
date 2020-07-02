@@ -335,7 +335,10 @@ def get_metadata_list(
         if full_record is not None:
             results.append(build_metadata(full_record))
 
-    return results, db_cursor.rowcount, len(record_set)
+    if cursor is not None:
+        return results, db_cursor.rowcount, (len(record_set) + cursor)
+    else:
+        return results, db_cursor.rowcount, len(record_set)
 
 
 def get_metadata(identifier, db, user, password, server, port):
