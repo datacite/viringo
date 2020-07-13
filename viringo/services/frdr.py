@@ -71,6 +71,7 @@ def construct_datacite_xml(data):
                  "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd")
 
     # Add resource URL as identifier
+    # TODO: Check if the URL is a DOI, reformat and use identifierType="DOI"
     identifier = ET.SubElement(resource, "identifier")
     identifier.set("identifierType", "URL")
     identifier.text = data['item_url']
@@ -98,10 +99,23 @@ def construct_datacite_xml(data):
     # Add subjects
     subject_and_tags = []
     subjects = ET.SubElement(resource, "subjects")
-    for subject_entry in data['dc:subject'] + data['frdr:tags'] + data['frdr:tags_fr']:
-        if subject_entry not in subject_and_tags:
+    for subject_entry in data['dc:subject']:
+        if subject_entry not in subject_and_tags and subject_entry != "":
             subject_and_tags.append(subject_entry)
             subject = ET.SubElement(subjects, "subject")
+            subject.set("xml:lang", "en")
+            subject.text = subject_entry
+    for subject_entry in data['frdr:tags']:
+        if subject_entry not in subject_and_tags and subject_entry != "":
+            subject_and_tags.append(subject_entry)
+            subject = ET.SubElement(subjects, "subject")
+            subject.set("xml:lang", "en")
+            subject.text = subject_entry
+    for subject_entry in data['frdr:tags_fr']:
+        if subject_entry not in subject_and_tags and subject_entry != "":
+            subject_and_tags.append(subject_entry)
+            subject = ET.SubElement(subjects, "subject")
+            subject.set("xml:lang", "fr")
             subject.text = subject_entry
 
     # Add FRDR as HostingInstituton
@@ -150,10 +164,17 @@ def construct_datacite_xml(data):
 
     # Add description(s)
     descriptions = ET.SubElement(resource, "descriptions")
-    for description_entry in data['dc:description'] + data['frdr:description_fr']:
+    for description_entry in data['dc:description']:
         if description_entry != "":
             description = ET.SubElement(descriptions, "description")
             description.set("descriptionType", "Abstract")
+            description.set("xml:lang", "en")
+            description.text = description_entry
+    for description_entry in data['frdr:description_fr']:
+        if description_entry != "":
+            description = ET.SubElement(descriptions, "description")
+            description.set("descriptionType", "Abstract")
+            description.set("xml:lang", "fr")
             description.text = description_entry
 
     # Add series (series)
