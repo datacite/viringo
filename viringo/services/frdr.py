@@ -360,7 +360,7 @@ def get_metadata_list(
             results.append(build_metadata(full_record))
 
     if cursor is not None:
-        return results, db_cursor.rowcount, (len(record_set) + cursor)
+        return results, db_cursor.rowcount, (len(record_set) + int(cursor))
     else:
         return results, db_cursor.rowcount, len(record_set)
 
