@@ -118,6 +118,10 @@ def construct_datacite_xml(data):
             subject.set("xml:lang", "fr")
             subject.text = subject_entry
 
+    # If subjects is empty, remove it
+    if len(subjects) == 0:
+        resource.remove(subjects)
+
     # Add FRDR as HostingInstituton
     contributors = ET.SubElement(resource, "contributors")
     contributor_en = ET.SubElement(contributors, "contributor")
