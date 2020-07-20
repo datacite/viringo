@@ -154,13 +154,20 @@ def construct_datacite_xml(data):
 
     # Add rightsList
     rightsList = ET.SubElement(resource, "rightsList")
-    for rights_entry in data['dc:rights'] + data['frdr:access']:
+    for rights_entry in data['dc:rights']:
         if rights_entry != '':
             rights = ET.SubElement(rightsList, "rights")
             rights.text = rights_entry
             if "http" in rights_entry:
                 rights.set("rightsURI", rights_entry[rights_entry.find("http"):].strip())
                 rights.text = rights_entry[:rights_entry.find("http")].strip()
+    for access_entry in data["frdr:access"]:
+        rights = ET.SubElement(rightsList, "rights")
+        if access_entry == "Public":
+            rights.text = "info:eu-repo/semantics/openAccess"
+        else:
+            rights.text = "info:eu-repo/semantics/restrictedAccess"
+
 
     # If rightsList is empty, remove it
     if len(rightsList) == 0:
