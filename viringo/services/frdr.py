@@ -198,7 +198,11 @@ def build_metadata(data):
     """Parse single FRDR result into metadata object"""
     result = Metadata()
 
-    result.identifier = "oai:" + data['item_url'] # Add oai: to identifier URL
+    # Construct identifier compliant with OAI spec
+    namespace = data['homepage_url'].replace("https://", "").replace("www.", "").replace("http://", "")
+    if namespace[-1] == "/":
+        namespace = namespace[:-1]
+    result.identifier = "oai:" + namespace + ":" + data['local_identifier']
 
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
     # This is because OAI always works in UTC.
@@ -229,14 +233,12 @@ def build_metadata(data):
     result.geo_locations = data['frdr:geospatial']
     result.resource_types = ['Dataset']
     result.formats = []
-    result.identifiers = []
+    result.identifiers = [data['item_url']]
     result.language = ''
     result.relations = []
     result.rights = data['dc:rights']
     result.client = data['homepage_url']
     result.active = True
-
-    result.identifiers.append(data['item_url'])
 
     return result
 
@@ -370,6 +372,7 @@ def get_metadata_list(
 
 
 def get_metadata(identifier, db, user, password, server, port):
+    local_identifier = identifier.split(":")[len(identifier.split(":"))-1] # get local_identifier substring from identifier
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
@@ -377,7 +380,7 @@ def get_metadata(identifier, db, user, password, server, port):
     recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, 
     repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, 
     repos.homepage_url FROM records recs, repositories repos 
-    WHERE recs.repository_id = repos.repository_id AND recs.item_url =\'""" + identifier[4:] + "\'")  # use identifier substring excluding oai: prefix
+    WHERE recs.repository_id = repos.repository_id AND recs.local_identifier =\'""" + local_identifier + "\'")  # use local_identifier
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
     record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
