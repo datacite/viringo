@@ -206,9 +206,7 @@ def build_metadata(data):
     result = Metadata()
 
     # Construct identifier compliant with OAI spec
-    namespace = data['homepage_url'].replace("https://", "").replace("www.", "").replace("http://", "")
-    if namespace[-1] == "/":
-        namespace = namespace[:-1]
+    namespace = data['repo_oai_name']
     result.identifier = "oai:" + namespace + ":" + data['local_identifier']
 
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
@@ -244,7 +242,7 @@ def build_metadata(data):
     result.language = ''
     result.relations = []
     result.rights = data['dc:rights']
-    result.client = data['homepage_url']
+    result.client = data['repo_oai_name']
     result.active = True
 
     return result
@@ -351,9 +349,9 @@ def get_metadata_list(
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         db_cursor = records_con.cursor()
-    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
+    records_sql = """SELECT recs.record_id, recs.title, recs.pub_date, recs.series, recs.source_url, recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url, repos.repo_oai_name FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id"""
     if set is not None and set != 'openaire_data':
-        records_sql = records_sql + " AND (repos.homepage_url='" + set + "')"
+        records_sql = records_sql + " AND (repos.repo_oai_name='" + set + "')"
     if from_datetime is not None:
         records_sql = records_sql + " AND recs.pub_date>='" + from_datetime + "'"
     if until_datetime is not None:
@@ -366,7 +364,7 @@ def get_metadata_list(
 
     results = []
     for row in record_set:
-        record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
+        record = (dict(zip(['record_id', 'title', 'pub_date', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url', 'repo_oai_name'], row)))
 
         full_record = assemble_record(record, db, user, password, server, port)
         if full_record is not None:
@@ -379,18 +377,20 @@ def get_metadata_list(
 
 
 def get_metadata(identifier, db, user, password, server, port):
-    local_identifier = identifier.split(":")[len(identifier.split(":"))-1] # get local_identifier substring from identifier
+    namespace = identifier.split(":")[1]
+    local_identifier = identifier.split(":")[2] # get local_identifier substring from identifier
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
-    records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.contact, recs.series, recs.source_url, 
+    records_sql = ("""SELECT recs.record_id, recs.title, recs.pub_date, recs.series, recs.source_url, 
     recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, 
     repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, 
-    repos.homepage_url FROM records recs, repositories repos 
-    WHERE recs.repository_id = repos.repository_id AND recs.local_identifier =\'""" + local_identifier + "\'")  # use local_identifier
+    repos.homepage_url, repos.repo_oai_name FROM records recs, repositories repos 
+    WHERE recs.repository_id = repos.repository_id 
+        AND recs.local_identifier =\'""" + local_identifier + "\'" + "AND repos.repo_oai_name=\'""" + namespace + "\'")
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
-    record = (dict(zip(['record_id', 'title', 'pub_date', 'contact', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url'], row)))
+    record = (dict(zip(['record_id', 'title', 'pub_date', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url', 'repo_oai_name'], row)))
 
     full_record = assemble_record(record, db, user, password, server, port)
     return build_metadata(full_record)
@@ -404,7 +404,7 @@ def get_sets(db, user, password, server, port):
     results = []
     results.append(['openaire_data', 'OpenAIRE'])
 
-    repos_cursor.execute("SELECT homepage_url, repository_name from repositories")
+    repos_cursor.execute("SELECT repo_oai_name, repository_name from repositories")
     results.extend(repos_cursor.fetchall())
 
     return results, len(results)
