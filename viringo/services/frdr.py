@@ -72,12 +72,12 @@ def construct_datacite_xml(data):
 
     # Add resource URL as identifier
     identifier = ET.SubElement(resource, "identifier")
-    identifier.set("identifierType", "URL")
-    identifier.text = data['item_url']
     if "doi.org/" in data['item_url']:
-        identifier = ET.SubElement(resource, "identifier")
         identifier.set("identifierType", "DOI")
         identifier.text = data['item_url'].split("doi.org/")[1]
+    else:
+        identifier.set("identifierType", "URL")
+        identifier.text = data['item_url']
 
 
     # Add creators
