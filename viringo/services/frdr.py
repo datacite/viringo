@@ -71,10 +71,14 @@ def construct_datacite_xml(data):
                  "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd")
 
     # Add resource URL as identifier
-    # TODO: Check if the URL is a DOI, reformat and use identifierType="DOI"
     identifier = ET.SubElement(resource, "identifier")
     identifier.set("identifierType", "URL")
     identifier.text = data['item_url']
+    if "doi.org/" in data['item_url']:
+        identifier = ET.SubElement(resource, "identifier")
+        identifier.set("identifierType", "DOI")
+        identifier.text = data['item_url'].split("doi.org/")[1]
+
 
     # Add creators
     creators = ET.SubElement(resource, "creators")
