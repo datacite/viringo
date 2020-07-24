@@ -397,8 +397,9 @@ def get_metadata_list(
 
 
 def get_metadata(identifier, db, user, password, server, port):
-    namespace = identifier.split(":")[1]
-    local_identifier = identifier.split(":")[2] # get local_identifier substring from identifier
+    identifier = identifier[4:]
+    namespace = identifier[:identifier.find(":")]
+    local_identifier = identifier[identifier.find(":")+1:]
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
