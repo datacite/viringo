@@ -140,8 +140,15 @@ def construct_datacite_xml(data):
     if len(subjects) == 0:
         resource.remove(subjects)
 
-    # Add FRDR as HostingInstituton
+    # Add contributors (contributorType "Other")
     contributors = ET.SubElement(resource, "contributors")
+    for contributor_entry in data["dc:contributor"]:
+        contributor = ET.SubElement(contributors, "contributor")
+        contributor.set("contributorType", "Other")
+        contributorName = ET.SubElement(contributor, "contributorName")
+        contributorName.text = contributor_entry
+
+    # Add FRDR as HostingInstituton
     contributor_en = ET.SubElement(contributors, "contributor")
     contributor_en.set("contributorType", "HostingInstitution")
     contributor_en.set("xml:lang", "en")
