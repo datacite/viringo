@@ -190,12 +190,12 @@ def construct_datacite_xml(data):
         for access_entry in data["frdr:access"]:
             rights = ET.SubElement(rightsList, "rights")
             if access_entry == "Public":
-                rights.text = "info:eu-repo/semantics/openAccess"
+                rights.set("rightsURI", "info:eu-repo/semantics/openAccess")
             else:
-                rights.text = "info:eu-repo/semantics/restrictedAccess"
+                rights.set("rightsURI", "info:eu-repo/semantics/restrictedAccess")
     else: # Assume Public/openAccess
         rights = ET.SubElement(rightsList, "rights")
-        rights.text = "info:eu-repo/semantics/openAccess"
+        rights.set("rightsURI", "info:eu-repo/semantics/openAccess")
 
     # Add description(s)
     descriptions = ET.SubElement(resource, "descriptions")
