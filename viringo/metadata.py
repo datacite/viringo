@@ -1,6 +1,7 @@
 """This module deals with handling the representation of metadata formats for OAI"""
 
 import re
+import ftfy
 from lxml import etree
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
@@ -46,9 +47,10 @@ def oai_dc_writer(element: etree.Element, metadata):
                 if isinstance(value, list) and len(value) == 1:
                     value = value[0]
                 new_element = etree.SubElement(e_dc, nsdc(name))
-                # The regular expression here is to filter only valid XML chars
-                # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-                new_element.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', value)
+                if value is not None:
+                    new_element.text = ftfy.fix_text(value)
+                else:
+                    new_element.text = ''
 
 def datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""

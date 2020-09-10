@@ -13,6 +13,7 @@ python-dotenv = "*"
 
 [packages]
 flask = "*"
+ftfy = "*"
 pyoai = "*"
 psycopg2-binary = "*"
 requests = "*"
