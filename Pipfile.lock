@@ -66,6 +66,12 @@
             "index": "pypi",
             "version": "==1.1.1"
         },
+        "ftfy": {
+            "hashes": [
+                "sha256:51c7767f8c4b47d291fcef30b9625fb5341c06a31e6a3b627039c706c42f3720"
+            ],
+            "version": "==5.8"
+        },
         "idna": {
             "hashes": [
                 "sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407",

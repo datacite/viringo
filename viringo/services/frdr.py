@@ -375,7 +375,7 @@ def get_metadata_list(
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         db_cursor = records_con.cursor()
-    records_sql = """SELECT recs.record_id, recs.title, recs.title_fr, recs.pub_date, recs.series, recs.source_url, recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url, repos.repo_oai_name FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.pub_date != ''"""
+    records_sql = """SELECT recs.record_id, recs.title, recs.title_fr, recs.pub_date, recs.series, recs.source_url, recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, repos.homepage_url, repos.repo_oai_name, count(*) OVER() AS full_count FROM records recs, repositories repos WHERE recs.repository_id = repos.repository_id AND recs.pub_date != ''"""
     if set is not None and set != 'openaire_data':
         records_sql = records_sql + " AND (repos.repo_oai_name='" + set + "')"
     if from_datetime is not None:
@@ -388,19 +388,24 @@ def get_metadata_list(
     db_cursor.execute(records_sql)
 
     record_set = db_cursor.fetchmany(config.RESULT_SET_SIZE)
+    full_count = 0
 
     results = []
     for row in record_set:
         record = (dict(zip(['record_id', 'title_en', 'title_fr', 'pub_date', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url', 'repo_oai_name'], row)))
+
+        # This is goofy, but full_count isn't always returned for empty results
+        if int(row[-1]) != 0:
+            full_count = row[-1]
 
         full_record = assemble_record(record, db, user, password, server, port)
         if full_record is not None:
             results.append(build_metadata(full_record))
 
     if cursor is not None:
-        return results, db_cursor.rowcount, (len(record_set) + int(cursor))
+        return results, full_count, (len(record_set) + int(cursor))
     else:
-        return results, db_cursor.rowcount, len(record_set)
+        return results, full_count, len(record_set)
 
 
 def get_metadata(identifier, db, user, password, server, port):
