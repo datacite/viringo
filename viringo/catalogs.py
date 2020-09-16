@@ -394,8 +394,7 @@ class FRDROAIServer():
             cursor=paging_cursor
         )
 
-        batch_size = 50
-        if len(results) < batch_size:
+        if paging_cursor >= total_records:
             paging_cursor = None
 
         records = []
