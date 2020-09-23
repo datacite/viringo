@@ -275,6 +275,20 @@ def build_metadata(data):
     result.client = data['repo_oai_name']
     result.active = True
 
+    # Add openAccess or restrictedAccess indicator to dc:rights
+    if len(data["frdr:access"]) > 0:
+        for access_entry in data["frdr:access"]:
+            # If Public in frdr:access, use openAccess
+            if access_entry == "Public":
+                result.rights.append("openAccess")
+                break
+        if "openAccess" not in result.rights:
+            # If there are access values and none are Public, use restrictedAccess
+            result.rights.append("restrictedAccess")
+    else:
+        # If not indicated, assume Public/openAccess
+        result.rights.append("openAccess")
+
     return result
 
 
