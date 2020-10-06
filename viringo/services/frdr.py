@@ -66,6 +66,7 @@ class Metadata:
 
 def xml_fix_text(text):
     if isinstance(text, str) and len(text) > 0:
+        text = text.replace('\x0c', " ")
         return ftfy.fix_text(text)
     else:
         return ''
