@@ -260,7 +260,7 @@ def build_metadata(data):
             result.subjects.append(subject)
 
     result.descriptions = data['dc:description_en'] + data['dc:description_fr']
-    result.publisher = data['dc:publisher']
+    result.publisher = data['repository_name']
     result.publication_year = dateutil.parser.parse(data['pub_date']).year
     result.dates = [data['pub_date']]
     result.contributors = data['dc:contributor']
