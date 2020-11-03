@@ -13,8 +13,10 @@ from oaipmh import common, error
 from viringo import config
 from .services import datacite
 
+
 class DataCiteOAIServer():
     """Build OAI-PMH data responses for DataCite metadata catalog"""
+
     def identify(self):
         """Construct common identification for the OAI service"""
 
@@ -92,19 +94,19 @@ class DataCiteOAIServer():
         data = (
             header,
             record,
-            None # About string - not used
+            None  # About string - not used
         )
 
         return data
 
     def listRecords(
-            self,
-            metadataPrefix=None,
-            from_=None,
-            until=None,
-            set=None,
-            paging_cursor=None
-        ):
+        self,
+        metadataPrefix=None,
+        from_=None,
+        until=None,
+        set=None,
+        paging_cursor=None
+    ):
         #pylint: disable=no-self-use,invalid-name
         """Returns pyoai data tuple for list of records"""
 
@@ -115,7 +117,6 @@ class DataCiteOAIServer():
         provider_id, client_id = set_to_provider_client(set)
         results, total_records, paging_cursor = datacite.get_metadata_list(
             query=search_query,
-            provider_id=provider_id,
             client_id=client_id,
             from_datetime=from_,
             until_datetime=until,
@@ -134,7 +135,7 @@ class DataCiteOAIServer():
                 data = (
                     header,
                     record,
-                    None # About string - not used
+                    None  # About string - not used
                 )
 
                 records.append(data)
@@ -144,13 +145,13 @@ class DataCiteOAIServer():
         return records, total_records, paging_cursor
 
     def listIdentifiers(
-            self,
-            metadataPrefix=None,
-            from_=None,
-            until=None,
-            set=None,
-            paging_cursor=None
-        ):
+        self,
+        metadataPrefix=None,
+        from_=None,
+        until=None,
+        set=None,
+        paging_cursor=None
+    ):
         #pylint: disable=no-self-use,invalid-name
         """Returns pyoai data tuple for list of identifiers"""
 
@@ -158,7 +159,6 @@ class DataCiteOAIServer():
         provider_id, client_id = set_to_provider_client(set)
 
         results, total_records, paging_cursor = datacite.get_metadata_list(
-            provider_id=provider_id,
             client_id=client_id,
             from_datetime=from_,
             until_datetime=until,
@@ -177,9 +177,9 @@ class DataCiteOAIServer():
         return records, total_records, paging_cursor
 
     def listSets(
-            self,
-            paging_cursor=0
-        ):
+        self,
+        paging_cursor=0
+    ):
         #pylint: disable=no-self-use,invalid-name
         """Returns pyoai data tuple for list of sets"""
 
@@ -238,7 +238,8 @@ class DataCiteOAIServer():
         dates = []
         if result.publication_year:
             dates.append(str(result.publication_year))
-        dates.extend([date['type'] + ": " + str(date['date']) for date in result.dates])
+        dates.extend([date['type'] + ": " + str(date['date'])
+                      for date in result.dates])
 
         rights = []
         for right in result.rights:
@@ -281,6 +282,7 @@ class DataCiteOAIServer():
 
         return metadata
 
+
 def set_to_search_query(unparsed_set):
     """Take a oai set and extract any base64url encoded search query"""
 
@@ -317,6 +319,7 @@ def set_to_provider_client(unparsed_set):
             provider_id = unparsed_set
 
     return provider_id, client_id
+
 
 def identifier_to_string(identifier):
     """Take an identifier and return in a formatted in single string"""
