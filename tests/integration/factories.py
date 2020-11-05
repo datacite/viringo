@@ -97,4 +97,5 @@ class MetadataFactory(factory.Factory):
     rights = []
     sizes = []
     client = 'DATACITE.DATACITE'
+    provider = 'DATACITE'
     active = True

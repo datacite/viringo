@@ -221,7 +221,7 @@ class DataCiteOAIServer():
             None,
             'doi:' + result.identifier,
             result.updated_datetime,
-            setspec=[provider_symbol, result.client],
+            setspec=[result.provider, result.client],
             deleted=not result.active
         )
 
