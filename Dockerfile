@@ -13,7 +13,7 @@ ADD "https://bootstrap.pypa.io/get-pip.py" /tmp/get-pip.py
 RUN python3 /tmp/get-pip.py
 
 # Fetch pipenv install script and run
-ADD "https://raw.githubusercontent.com/kennethreitz/pipenv/master/get-pipenv.py" /tmp/get-pipenv.py
+ADD "https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py" /tmp/get-pipenv.py
 RUN python3 /tmp/get-pipenv.py
 
 # Cleanup
