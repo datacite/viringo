@@ -117,6 +117,7 @@ class DataCiteOAIServer():
         provider_id, client_id = set_to_provider_client(set)
         results, total_records, paging_cursor = datacite.get_metadata_list(
             query=search_query,
+            provider_id=provider_id,
             client_id=client_id,
             from_datetime=from_,
             until_datetime=until,
@@ -159,6 +160,7 @@ class DataCiteOAIServer():
         provider_id, client_id = set_to_provider_client(set)
 
         results, total_records, paging_cursor = datacite.get_metadata_list(
+            provider_id=provider_id,
             client_id=client_id,
             from_datetime=from_,
             until_datetime=until,

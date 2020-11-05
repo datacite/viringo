@@ -237,11 +237,16 @@ def get_metadata_list(
 
     params = {
         'detail': True,
-        'provider_id': provider_id,
-        'client_id': client_id,
         'page[size]': config.RESULT_SET_SIZE,
         'page[cursor]': cursor
     }
+
+    # Only use the provider id if we dont have a client id
+    # Otherwise just send client_id
+    if not client_id:
+        params['provider_id'] = provider_id
+    else:
+        params['client_id'] = client_id
 
     if datetime_query:
         if query:
