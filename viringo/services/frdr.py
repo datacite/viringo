@@ -194,15 +194,19 @@ def construct_datacite_xml(data):
             if "http" in rights_entry:
                 rights.set("rightsURI", rights_entry[rights_entry.find("http"):].strip())
                 rights.text = xml_fix_text(rights_entry[:rights_entry.find("http")].strip())
+    # Add access statement
+    rights = ET.SubElement(rightsList, "rights")
     if len(data["frdr:access"]) > 0:
         for access_entry in data["frdr:access"]:
-            rights = ET.SubElement(rightsList, "rights")
+            # If Public in frdr:access, use openAccess
             if access_entry == "Public":
                 rights.set("rightsURI", "info:eu-repo/semantics/openAccess")
-            else:
-                rights.set("rightsURI", "info:eu-repo/semantics/restrictedAccess")
-    else: # Assume Public/openAccess
-        rights = ET.SubElement(rightsList, "rights")
+                break
+        if "rightsURI" not in rights.attrib:
+            # If there are access values and none are Public, use restrictedAccess
+            rights.set("rightsURI", "info:eu-repo/semantics/restrictedAccess")
+    else:
+        # If not indicated, assume Public/openAccess
         rights.set("rightsURI", "info:eu-repo/semantics/openAccess")
 
     # Add description(s)
