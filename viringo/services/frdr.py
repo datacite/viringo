@@ -410,9 +410,11 @@ def get_metadata_list(
     if set is not None and set != 'openaire_data':
         records_sql = records_sql + " AND (repos.repo_oai_name='" + set + "')"
     if from_datetime is not None:
-        records_sql = records_sql + " AND recs.pub_date>='" + from_datetime.strftime('%Y-%M-%D') + "'"
+        from_timestamp = int(datetime.timestamp(from_datetime))
+        records_sql = records_sql + " AND recs.upstream_modified_timestamp>=" + str(from_timestamp)
     if until_datetime is not None:
-        records_sql = records_sql + " AND recs.pub_date<'" + until_datetime.strftime('%Y-%M-%D') + "'"
+        until_timestamp = int(datetime.timestamp(until_datetime))
+        records_sql = records_sql + " AND recs.upstream_modified_timestamp<" + str(until_timestamp)
     records_sql = records_sql + " ORDER BY recs.record_id"
     if cursor is not None:
         records_sql = records_sql + " OFFSET " + cursor
