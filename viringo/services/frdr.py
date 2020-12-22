@@ -242,13 +242,11 @@ def construct_datacite_xml(data):
             geolocationBox = ET.SubElement(geolocation, "geolocationBox")
             geolocationBox.text = xml_fix_text(str(geobbox["southBoundLatitude"]) + " " + str(geobbox["westBoundLongitude"]) + " " +
                                                str(geobbox["northBoundLatitude"]) + " " + str(geobbox["eastBoundLongitude"]))
-
     if "geoLocationPoint" in data["datacite_geoLocation"]:
         for geopoint in data["datacite_geoLocation"]["geoLocationPoint"]:
             geolocation = ET.SubElement(geolocations, "geoLocation")
             geoLocationPoint = ET.SubElement(geolocation, "geoLocationPoint")
             geoLocationPoint.text = xml_fix_text(str(geopoint["pointLatitude"]) + " " + str(geopoint["pointLongitude"]))
-
     if "geoLocationPlace" in data["datacite_geoLocation"]:
         for geoplace in data["datacite_geoLocation"]["geoLocationPlace"]:
             geolocation = ET.SubElement(geolocations, "geoLocation")
@@ -264,8 +262,10 @@ def construct_datacite_xml(data):
                 components.append(geoplace["province_state"])
             if geoplace["country"]:
                 components.append(geoplace["country"])
+            # Combine all components of the place name separated by "; "
             geoLocationPlace.text = xml_fix_text("; ".join(components))
 
+    # If geolocations is empty, remove it
     if len(geolocations) == 0:
         resource.remove(geolocations)
 
@@ -360,6 +360,7 @@ def assemble_record(record, db, user, password, server, port):
         from psycopg2.extras import DictCursor
         lookup_cur = con.cursor(cursor_factory=DictCursor)
 
+        # get geolocation metadata
         record["datacite_geoLocation"] = {}
         lookup_cur.execute("""SELECT geobbox.westLon, geobbox.eastLon, geobbox.northLat, geobbox.southLat
                                            FROM geobbox WHERE geobbox.record_id=%s""", [record["record_id"]])
@@ -382,20 +383,16 @@ def assemble_record(record, db, user, password, server, port):
 
         lookup_cur.execute("""SELECT geoplace.country, geoplace.province_state, geoplace.city, geoplace.other, geoplace.place_name
                            FROM geoplace JOIN records_x_geoplace on records_x_geoplace.geoplace_id = geoplace.geoplace_id
-                                           WHERE records_x_geoplace.record_id=%s""", [record["record_id"]])
+                           WHERE records_x_geoplace.record_id=%s""", [record["record_id"]])
         geoplaces = lookup_cur.fetchall()
         if len(geoplaces) > 0:
             record["datacite_geoLocation"]["geoLocationPlace"] = []
             for geoplace in geoplaces:
                 record["datacite_geoLocation"]["geoLocationPlace"].append({"country": geoplace["country"],
-                                                            "province_state": geoplace["province_state"],
-                                                            "city": geoplace["city"],
-                                                            "additional": geoplace["other"],
-                                                             "place_name": geoplace["place_name"]})
-
-    with con:
-        from psycopg2.extras import DictCursor
-        lookup_cur = con.cursor(cursor_factory=DictCursor)
+                                                                           "province_state": geoplace["province_state"],
+                                                                           "city": geoplace["city"],
+                                                                           "additional": geoplace["other"],
+                                                                           "place_name": geoplace["place_name"]})
 
         # attach the other values to the dict
         lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_id=%s AND records_x_creators.is_contributor=0 order by records_x_creators_id asc""", [record["record_id"]])
