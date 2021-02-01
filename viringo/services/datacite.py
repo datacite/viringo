@@ -359,6 +359,8 @@ def api_get_paging_with_url(url, params):
 def api_call_get(url, params=None):
     """Make authenticated get request to API with params"""
 
+    params['disable-facets'] = True
+
     payload_str = ''
     if params:
         # Construct the payload as a string
