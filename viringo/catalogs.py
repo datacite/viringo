@@ -448,6 +448,9 @@ class FRDROAIServer():
             cursor=paging_cursor
         )
 
+        if paging_cursor >= total_records:
+            paging_cursor = None
+
         records = []
         if results:
             for result in results:
