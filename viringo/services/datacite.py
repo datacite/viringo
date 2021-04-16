@@ -375,7 +375,7 @@ def api_call_get(url, params=None):
         params=payload_str,
         auth=requests.auth.HTTPBasicAuth(
             config.DATACITE_API_ADMIN_USERNAME, config.DATACITE_API_ADMIN_PASSWORD),
-        timeout=30
+        timeout=120
     )
 
     return response
