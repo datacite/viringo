@@ -1,4 +1,4 @@
-version: '2'
+version: '3.8'
 
 services:
   web:
@@ -8,6 +8,4 @@ services:
       - "8091:80"
       - "2291:22"
     volumes:
-      - ./:/home/app/webapp/
-    env_file:
-      - .env
+      - ./:/home/app/webapp
