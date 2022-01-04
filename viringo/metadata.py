@@ -1,6 +1,7 @@
 """This module deals with handling the representation of metadata formats for OAI"""
 
 import re
+import ftfy
 from lxml import etree
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
@@ -43,10 +44,20 @@ def oai_dc_writer(element: etree.Element, metadata):
         ]:
         for value in _map.get(name, []):
             if value:
+                if isinstance(value, list):
+                    if len(value) == 1:
+                        value = value[0]
+                    else:
+                        value = str(value)
                 new_element = etree.SubElement(e_dc, nsdc(name))
-                # The regular expression here is to filter only valid XML chars
-                # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-                new_element.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', value)
+                if isinstance(value, str):
+                    try:
+                        value = value.replace('\x0c', " ")
+                        new_element.text = ftfy.fix_text(value)
+                    except:
+                        new_element.text = ''
+                else:
+                    new_element.text = ''
 
 def datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
@@ -62,7 +73,10 @@ def oai_datacite_writer(element: etree.Element, metadata):
     _map = metadata.getMap()
     raw_xml = _map.get('xml', '')
 
-    xml_resource_element = etree.fromstring(raw_xml)
+    try:
+        xml_resource_element = etree.fromstring(raw_xml)
+    except:
+        print(raw_xml)
 
     e_oai_datacite = etree.SubElement(
         element, "oai_datacite", {'xmlns': 'http://schema.datacite.org/oai/oai-1.1/'},

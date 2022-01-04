@@ -12,7 +12,11 @@ import oaipmh.server
 import oaipmh.datestamp
 
 from .catalogs import DataCiteOAIServer
+from .catalogs import FRDROAIServer
 from . import metadata
+from . import config
+
+import sys
 
 BP = Blueprint('oai', __name__)
 
@@ -93,7 +97,10 @@ class Resumption(oaipmh.common.ResumptionOAIPMH):
 def get_oai_server():
     """Returns a pyoai server object that can process and return OAI requests"""
     if 'oai' not in g:
-        catalog_server = DataCiteOAIServer()
+        if config.CATALOG_SET == 'FRDR':
+            catalog_server = FRDROAIServer()
+        else:
+            catalog_server = DataCiteOAIServer()
 
         metadata_registry = oaipmh.metadata.MetadataRegistry()
         metadata_registry.registerWriter('oai_dc', metadata.oai_dc_writer)
