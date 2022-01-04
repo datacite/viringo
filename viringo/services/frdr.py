@@ -363,7 +363,7 @@ def assemble_record(record, db, user, password, server, port):
         # get geolocation metadata
         record["datacite_geoLocation"] = {}
         lookup_cur.execute("""SELECT geobbox.westLon, geobbox.eastLon, geobbox.northLat, geobbox.southLat
-                                           FROM geobbox WHERE geobbox.record_id=%s""", [record["record_id"]])
+                                           FROM geobbox WHERE geobbox.record_uuid=%s""", [record["record_uuid"]])
         geobboxes = lookup_cur.fetchall()
         if len(geobboxes) > 0:
             record["datacite_geoLocation"]["geoLocationBox"] = []
@@ -372,8 +372,8 @@ def assemble_record(record, db, user, password, server, port):
                                                           "eastBoundLongitude": geobbox["eastlon"],
                                                           "northBoundLatitude": geobbox["northlat"],
                                                           "southBoundLatitude": geobbox["southlat"]})
-        lookup_cur.execute("""SELECT geopoint.lat, geopoint.lon FROM geopoint WHERE geopoint.record_id=%s""",
-                        [record["record_id"]])
+        lookup_cur.execute("""SELECT geopoint.lat, geopoint.lon FROM geopoint WHERE geopoint.record_uuid=%s""",
+                        [record["record_uuid"]])
         geopoints = lookup_cur.fetchall()
         if len(geopoints) > 0:
             record["datacite_geoLocation"]["geoLocationPoint"] = []
@@ -383,7 +383,7 @@ def assemble_record(record, db, user, password, server, port):
 
         lookup_cur.execute("""SELECT geoplace.country, geoplace.province_state, geoplace.city, geoplace.other, geoplace.place_name
                            FROM geoplace JOIN records_x_geoplace on records_x_geoplace.geoplace_id = geoplace.geoplace_id
-                           WHERE records_x_geoplace.record_id=%s""", [record["record_id"]])
+                           WHERE records_x_geoplace.record_uuid=%s""", [record["record_uuid"]])
         geoplaces = lookup_cur.fetchall()
         if len(geoplaces) > 0:
             record["datacite_geoLocation"]["geoLocationPlace"] = []
@@ -395,40 +395,40 @@ def assemble_record(record, db, user, password, server, port):
                                                                            "place_name": geoplace["place_name"]})
 
         # attach the other values to the dict
-        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_id=%s AND records_x_creators.is_contributor=0 order by records_x_creators_id asc""", [record["record_id"]])
+        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_uuid=%s AND records_x_creators.is_contributor=0 order by records_x_creators_id asc""", [record["record_uuid"]])
         record["dc:contributor.author"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT affiliations.affiliation FROM affiliations JOIN records_x_affiliations on records_x_affiliations.affiliation_id = affiliations.affiliation_id WHERE records_x_affiliations.record_id=%s""", [record["record_id"]])
+        lookup_cur.execute("""SELECT affiliations.affiliation FROM affiliations JOIN records_x_affiliations on records_x_affiliations.affiliation_id = affiliations.affiliation_id WHERE records_x_affiliations.record_uuid=%s""", [record["record_uuid"]])
         record["datacite:creatorAffiliation"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_id=%s AND records_x_creators.is_contributor=1 order by records_x_creators_id asc""", [record["record_id"]])
+        lookup_cur.execute("""SELECT creators.creator FROM creators JOIN records_x_creators on records_x_creators.creator_id = creators.creator_id WHERE records_x_creators.record_uuid=%s AND records_x_creators.is_contributor=1 order by records_x_creators_id asc""", [record["record_uuid"]])
         record["dc:contributor"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT subjects.subject FROM subjects JOIN records_x_subjects on records_x_subjects.subject_id = subjects.subject_id WHERE records_x_subjects.record_id=%s and subjects.language = 'en' """, [record["record_id"]])
+        lookup_cur.execute("""SELECT subjects.subject FROM subjects JOIN records_x_subjects on records_x_subjects.subject_id = subjects.subject_id WHERE records_x_subjects.record_uuid=%s and subjects.language = 'en' """, [record["record_uuid"]])
         record["frdr:category_en"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT subjects.subject FROM subjects JOIN records_x_subjects on records_x_subjects.subject_id = subjects.subject_id WHERE records_x_subjects.record_id=%s and subjects.language = 'fr' """, [record["record_id"]])
+        lookup_cur.execute("""SELECT subjects.subject FROM subjects JOIN records_x_subjects on records_x_subjects.subject_id = subjects.subject_id WHERE records_x_subjects.record_uuid=%s and subjects.language = 'fr' """, [record["record_uuid"]])
         record["frdr:category_fr"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT publishers.publisher FROM publishers JOIN records_x_publishers on records_x_publishers.publisher_id = publishers.publisher_id WHERE records_x_publishers.record_id=%s""", [record["record_id"]])
+        lookup_cur.execute("""SELECT publishers.publisher FROM publishers JOIN records_x_publishers on records_x_publishers.publisher_id = publishers.publisher_id WHERE records_x_publishers.record_uuid=%s""", [record["record_uuid"]])
         record["dc:publisher"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT rights.rights FROM rights JOIN records_x_rights on records_x_rights.rights_id = rights.rights_id WHERE records_x_rights.record_id=%s""", [record["record_id"]])
+        lookup_cur.execute("""SELECT rights.rights FROM rights JOIN records_x_rights on records_x_rights.rights_id = rights.rights_id WHERE records_x_rights.record_uuid=%s""", [record["record_uuid"]])
         record["dc:rights"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("SELECT description FROM descriptions WHERE record_id=%s and language='en' ", [record["record_id"]])
+        lookup_cur.execute("SELECT description FROM descriptions WHERE record_uuid=%s and language='en' ", [record["record_uuid"]])
         record["dc:description_en"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("SELECT description FROM descriptions WHERE record_id=%s and language='fr' ", [record["record_id"]])
+        lookup_cur.execute("SELECT description FROM descriptions WHERE record_uuid=%s and language='fr' ", [record["record_uuid"]])
         record["dc:description_fr"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_id=%s and tags.language = 'en' """, [record["record_id"]])
+        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_uuid=%s and tags.language = 'en' """, [record["record_uuid"]])
         record["frdr:keywords_en"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_id=%s and tags.language = 'fr' """, [record["record_id"]])
+        lookup_cur.execute("""SELECT tags.tag FROM tags JOIN records_x_tags on records_x_tags.tag_id = tags.tag_id WHERE records_x_tags.record_uuid=%s and tags.language = 'fr' """, [record["record_uuid"]])
         record["frdr:keywords_fr"] = rows_to_dict(lookup_cur)
 
-        lookup_cur.execute("""SELECT access.access FROM access JOIN records_x_access on records_x_access.access_id = access.access_id WHERE records_x_access.record_id=%s""", [record["record_id"]])
+        lookup_cur.execute("""SELECT access.access FROM access JOIN records_x_access on records_x_access.access_id = access.access_id WHERE records_x_access.record_uuid=%s""", [record["record_uuid"]])
         record["frdr:access"] = rows_to_dict(lookup_cur)
 
     return record
@@ -450,7 +450,7 @@ def get_metadata_list(
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         db_cursor = records_con.cursor()
-    records_sql = """SELECT recs.record_id, recs.title, recs.title_fr, recs.pub_date, recs.series, recs.source_url, 
+    records_sql = """SELECT recs.record_uuid, recs.title, recs.title_fr, recs.pub_date, recs.series, recs.source_url, 
         recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, 
         repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, 
         repos.homepage_url, repos.repo_oai_name, count(*) OVER() AS full_count FROM records recs, repositories repos 
@@ -464,7 +464,7 @@ def get_metadata_list(
     if until_datetime is not None:
         until_timestamp = int(datetime.timestamp(until_datetime))
         records_sql = records_sql + " AND recs.upstream_modified_timestamp<" + str(until_timestamp)
-    records_sql = records_sql + " ORDER BY recs.record_id"
+    records_sql = records_sql + " ORDER BY recs.record_uuid"
     if cursor is not None:
         records_sql = records_sql + " OFFSET " + cursor
     db_cursor.execute(records_sql)
@@ -474,7 +474,7 @@ def get_metadata_list(
 
     results = []
     for row in record_set:
-        record = (dict(zip(['record_id', 'title_en', 'title_fr', 'pub_date', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url', 'repo_oai_name'], row)))
+        record = (dict(zip(['record_uuid', 'title_en', 'title_fr', 'pub_date', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url', 'repo_oai_name'], row)))
 
         # This is goofy, but full_count isn't always returned for empty results
         if int(row[-1]) != 0:
@@ -497,7 +497,7 @@ def get_metadata(identifier, db, user, password, server, port):
     records_con = psycopg2.connect("dbname='%s' user='%s' password='%s' host='%s' port='%s'" % (db, user, password, server, port))
     with records_con:
         records_cursor = records_con.cursor()
-    records_sql = ("""SELECT recs.record_id, recs.title, recs.title_fr, recs.pub_date, recs.series, recs.source_url, 
+    records_sql = ("""SELECT recs.record_uuid, recs.title, recs.title_fr, recs.pub_date, recs.series, recs.source_url, 
     recs.item_url, recs.deleted, recs.local_identifier, recs.modified_timestamp, repos.repository_url, 
     repos.repository_name, repos.repository_thumbnail, repos.item_url_pattern, repos.last_crawl_timestamp, 
     repos.homepage_url, repos.repo_oai_name FROM records recs, repositories repos 
@@ -505,7 +505,7 @@ def get_metadata(identifier, db, user, password, server, port):
         AND recs.local_identifier =\'""" + local_identifier + "\'" + "AND repos.repo_oai_name=\'""" + namespace + "\'")
     records_cursor.execute(records_sql)
     row = records_cursor.fetchone()
-    record = (dict(zip(['record_id', 'title_en', 'title_fr', 'pub_date', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url', 'repo_oai_name'], row)))
+    record = (dict(zip(['record_uuid', 'title_en', 'title_fr', 'pub_date', 'series', 'source_url', 'item_url', 'deleted', 'local_identifier', 'modified_timestamp', 'repository_url', 'repository_name', 'repository_thumbnail', 'item_url_pattern', 'last_crawl_timestamp', 'homepage_url', 'repo_oai_name'], row)))
 
     full_record = assemble_record(record, db, user, password, server, port)
     return build_metadata(full_record)
