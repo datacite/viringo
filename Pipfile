@@ -10,6 +10,7 @@ pytest-mock = "*"
 factory-boy = "*"
 termcolor = "*"
 python-dotenv = "*"
+pytest-env = "*"
 
 [packages]
 flask = "*"
