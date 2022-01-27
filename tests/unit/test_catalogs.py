@@ -66,3 +66,15 @@ def test_identifier_to_string():
     identifier_string = catalogs.identifier_to_string(identifier_type)
 
     assert identifier_string == "doi:10.5072/1234"
+
+def test_numeric_identifier_to_string():
+    """Tests for converting an ISBN numeric identifier to single string"""
+
+    identifier_type = {
+        'type': 'ISBN',
+        'identifier': 9783851254679
+    }
+
+    identifier_string = catalogs.identifier_to_string(identifier_type)
+
+    assert identifier_string == "isbn:9783851254679"

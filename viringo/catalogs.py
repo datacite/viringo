@@ -326,5 +326,5 @@ def set_to_provider_client(unparsed_set):
 def identifier_to_string(identifier):
     """Take an identifier and return in a formatted in single string"""
     _id = identifier.get('identifier')
-    _type = identifier.get('type') or ''
-    return _type.lower() + ":" + _id
+    _type = identifier.get('type', '')
+    return _type.lower() + ":" + str(_id)
