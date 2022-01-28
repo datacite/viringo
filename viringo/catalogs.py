@@ -240,8 +240,10 @@ class DataCiteOAIServer():
         dates = []
         if result.publication_year:
             dates.append(str(result.publication_year))
-        dates.extend([date['type'] + ": " + str(date['date'])
-                      for date in result.dates])
+        date_strings = [
+            f"{d.get('type')}: {d.get('date')}" for d in result.dates
+        ]
+        dates.extend(date_strings)
 
         rights = []
         for right in result.rights:

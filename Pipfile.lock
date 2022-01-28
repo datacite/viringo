@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0241ea5b52f35e007cbafed257bd4a18dc0933e035596e9e8bd439670b30c510"
+            "sha256": "204a5889c2626d8c3f26f9885b0867a05d83f758c73c0d98aa9d78aaedef94eb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -483,6 +483,13 @@
             ],
             "index": "pypi",
             "version": "==3.6.1"
+        },
+        "pytest-sugar": {
+            "hashes": [
+                "sha256:b1b2186b0a72aada6859bea2a5764145e3aaa2c1cfbb23c3a19b5f7b697563d3"
+            ],
+            "index": "pypi",
+            "version": "==0.9.4"
         },
         "python-dateutil": {
             "hashes": [

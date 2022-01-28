@@ -73,97 +73,100 @@ class Metadata:
 def build_metadata(data):
     """Parse single json-api data dict into metadata object"""
     result = Metadata()
-
     result.identifier = data.get('id')
+
+    attributes = data.get("attributes", {})
 
     # Here we want to parse a ISO date but convert to UTC and then remove the TZinfo entirely
     # This is because OAI always works in UTC.
-    created = dateutil.parser.parse(data['attributes']['created'])
+    created = dateutil.parser.parse(attributes['created'])
     result.created_datetime = created.astimezone(
         dateutil.tz.UTC).replace(tzinfo=None)
-    updated = dateutil.parser.parse(data['attributes']['updated'])
+    updated = dateutil.parser.parse(attributes['updated'])
     result.updated_datetime = updated.astimezone(
         dateutil.tz.UTC).replace(tzinfo=None)
 
-    result.xml = base64.b64decode(data['attributes']['xml']) \
-        if data['attributes']['xml'] is not None else None
+    result.xml = base64.b64decode(attributes['xml']) \
+        if attributes['xml'] is not None else None
 
-    result.metadata_version = data['attributes']['metadataVersion'] \
-        if data['attributes']['metadataVersion'] is not None else None
+    result.metadata_version = attributes.get('metadataVersion')
 
     result.titles = [
-        title.get('title', '') for title in data['attributes']['titles']
-    ] if data['attributes']['titles'] is not None else []
+        title.get('title', '') for title in attributes.get('titles',[])
+    ]
 
     result.creators = [
-        creator.get('name', '') for creator in data['attributes']['creators']
-    ] if data['attributes']['creators'] is not None else []
+        creator.get('name', '') for creator in attributes.get('creators',[])
+    ]
 
     result.subjects = [
-        subject.get('subject', '') for subject in data['attributes']['subjects']
-    ] if data['attributes']['subjects'] is not None else []
-
+        subject.get('subject', '') for subject in attributes.get('subjects', [])
+    ]
     result.descriptions = [
-        description.get('description', '') for description in data['attributes']['descriptions']
-    ] if data['attributes']['descriptions'] is not None else []
+        description.get('description', '') for description in attributes.get('descriptions',[])
+    ]
 
-    result.publisher = data['attributes'].get('publisher') or ''
-    result.publication_year = data['attributes'].get('publicationYear') or ''
+    result.publisher = attributes.get('publisher', '')
+    result.publication_year = attributes.get('publicationYear', '')
 
     result.dates = []
-    if data['attributes']['dates'] is not None:
-        for date in data['attributes']['dates']:
-            if 'date' in date and 'dateType' in date:
-                result.dates.append(
-                    {'type': date['dateType'], 'date': date['date']})
+    for date in attributes.get('dates',[]):
+        type_ = date.get('dateType')
+        value = date.get('date')
+        if bool(type_) and bool(value) :
+            result.dates.append(
+                {
+                    'type': type_,
+                    'date': value
+                }
+            )
 
-    result.contributors = data['attributes'].get('contributors') or []
-    result.funding_references = data['attributes'].get(
-        'fundingReferences') or []
-    result.sizes = data['attributes'].get('sizes') or []
-    result.geo_locations = data['attributes'].get('geoLocations') or []
+    result.contributors = attributes.get('contributors',[])
+    result.funding_references = attributes.get('fundingReferences',[])
+    result.sizes = attributes.get('sizes', [])
+    result.geo_locations = attributes.get('geoLocations', [])
 
     result.resource_types = []
-    result.resource_types += [data['attributes']['types'].get('resourceTypeGeneral')] \
-        if data['attributes']['types'].get('resourceTypeGeneral') is not None else []
-    result.resource_types += [data['attributes']['types'].get('resourceType')] \
-        if data['attributes']['types'].get('resourceType') is not None else []
+    result.resource_types += [attributes['types'].get('resourceTypeGeneral')] \
+        if attributes['types'].get('resourceTypeGeneral') is not None else []
+    result.resource_types += [attributes['types'].get('resourceType')] \
+        if attributes['types'].get('resourceType') is not None else []
 
-    result.formats = data['attributes'].get('formats') or []
+    result.formats = attributes.get('formats', [])
 
     result.identifiers = []
 
     # handle missing identifiers attribute
-    if data['attributes']['identifiers'] is not None:
-        for identifier in data['attributes']['identifiers']:
-            if identifier['identifier']:
-                # Special handling for the fact the API could return bad identifier
-                # as a list rather than a string
-                if isinstance(identifier['identifier'], list):
-                    identifier['identifier'] = ','.join(
-                        identifier['identifier'])
+    for identifier in attributes.get('identifiers',[]):
+        if identifier['identifier']:
+            # Special handling for the fact the API could return bad identifier
+            # as a list rather than a string
+            if isinstance(identifier['identifier'], list):
+                identifier['identifier'] = ','.join(
+                    identifier['identifier'])
 
-                result.identifiers.append({
-                    'type': identifier['identifierType'],
-                    'identifier': strip_uri_prefix(identifier['identifier'])
-                })
+            result.identifiers.append({
+                'type': identifier['identifierType'],
+                'identifier': strip_uri_prefix(identifier['identifier'])
+            })
 
-    result.language = data['attributes'].get('language') or ''
+    result.language = attributes.get('language', '')
 
     result.relations = []
-    if data['attributes']['relatedIdentifiers'] is not None:
-        for related in data['attributes']['relatedIdentifiers']:
-            if 'relatedIdentifier' in related:
-                result.relations.append({
-                    'type': related['relatedIdentifierType'],
-                    'identifier': related['relatedIdentifier']
-                })
+    for related in attributes.get('relatedIdentifiers',[]):
+        if 'relatedIdentifier' in related:
+            result.relations.append({
+                'type': related['relatedIdentifierType'],
+                'identifier': related['relatedIdentifier']
+            })
 
     result.rights = [
-        {'statement': right.get('rights', None),
-         'uri': right.get('rightsUri', None)}
-        for right in data['attributes']['rightsList']
-    ] if data['attributes']['rightsList'] is not None else []
+        {
+            'statement': right.get('rights', None),
+            'uri': right.get('rightsUri', None)
+        }
+        for right in attributes.get('rightsList', [])
+    ]
 
     result.client = data['relationships']['client']['data'].get(
         'id').upper() or ''
@@ -173,7 +176,7 @@ def build_metadata(data):
 
     # We make the active decision based upon if there is metadata and the isActive flag
     # This is the same as the previous oai-pmh datacite implementation.
-    result.active = True if result.xml and data['attributes'].get(
+    result.active = True if result.xml and attributes.get(
         'isActive', True) else False
 
     return result
