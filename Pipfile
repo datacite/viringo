@@ -11,6 +11,7 @@ factory-boy = "*"
 termcolor = "*"
 python-dotenv = "*"
 pytest-env = "*"
+pytest-sugar = "*"
 
 [packages]
 flask = "*"
