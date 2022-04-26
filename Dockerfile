@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:2.0.0
+FROM phusion/passenger-customizable:2.2.0
 LABEL maintiainer="jrhoads@datacite.org"
 
 # Set correct environment variables.
