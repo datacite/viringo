@@ -14,6 +14,10 @@ from viringo import config
 from .services import datacite
 
 
+class InvalidIdentifierException(Exception):
+    pass
+
+
 class DataCiteOAIServer():
     """Build OAI-PMH data responses for DataCite metadata catalog"""
 
@@ -253,12 +257,15 @@ class DataCiteOAIServer():
                 rights.append(right['uri'])
 
         identifiers = [
-            identifier_to_string(identifier) for identifier in result.identifiers
+            identifier_to_string(identifier)
+            for identifier in result.identifiers
+            if 'type' in identifier
         ]
 
         relations = [
             identifier_to_string(relation)
             for relation in result.relations
+            if 'type' in relation
         ]
 
         contributors = [
@@ -328,5 +335,9 @@ def set_to_provider_client(unparsed_set):
 def identifier_to_string(identifier):
     """Take an identifier and return in a formatted in single string"""
     _id = identifier.get('identifier')
-    _type = identifier.get('type', '')
+    _type = identifier.get('type','')
+    if not _type:
+        raise InvalidIdentifierException("Missing 'type' information")
+    if not _id:
+        raise InvalidIdentifierException("Missing 'id' information")
     return _type.lower() + ":" + str(_id)
