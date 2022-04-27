@@ -114,12 +114,10 @@ def build_metadata(data):
         type_ = date.get('dateType')
         value = date.get('date')
         if bool(type_) and bool(value) :
-            result.dates.append(
-                {
-                    'type': type_,
-                    'date': value
-                }
-            )
+            result.dates.append({
+                'type': type_,
+                'date': value
+            })
 
     result.contributors = attributes.get('contributors',[])
     result.funding_references = attributes.get('fundingReferences',[])
@@ -133,37 +131,14 @@ def build_metadata(data):
         if attributes['types'].get('resourceType') is not None else []
 
     result.formats = attributes.get('formats', [])
-
-    result.identifiers = []
-
-    # handle missing identifiers attribute
-    for identifier in attributes.get('identifiers',[]):
-        if identifier['identifier']:
-            # Special handling for the fact the API could return bad identifier
-            # as a list rather than a string
-            if isinstance(identifier['identifier'], list):
-                identifier['identifier'] = ','.join(
-                    identifier['identifier'])
-
-            result.identifiers.append({
-                'type': identifier['identifierType'],
-                'identifier': strip_uri_prefix(identifier['identifier'])
-            })
-
+    result.identifiers = identifiers_from_attributes(attributes)
     result.language = attributes.get('language', '')
-
-    result.relations = []
-    for related in attributes.get('relatedIdentifiers',[]):
-        if 'relatedIdentifier' in related:
-            result.relations.append({
-                'type': related['relatedIdentifierType'],
-                'identifier': related['relatedIdentifier']
-            })
+    result.relations = relations_from_attributes(attributes)
 
     result.rights = [
         {
-            'statement': right.get('rights', None),
-            'uri': right.get('rightsUri', None)
+            'statement': right.get('rights'),
+            'uri': right.get('rightsUri')
         }
         for right in attributes.get('rightsList', [])
     ]
@@ -180,6 +155,33 @@ def build_metadata(data):
         'isActive', True) else False
 
     return result
+
+def relations_from_attributes(attributes):
+    return identifiers_from_attributes(attributes,
+                                       list_key='relatedIdentifiers',
+                                       type_key='relatedIdentifierType',
+                                       value_key='relatedIdentifier')
+
+def identifiers_from_attributes(attributes,
+                                list_key='identifiers',
+                                type_key='identifierType',
+                                value_key='identifier'):
+    identifiers = []
+    for identifier in attributes.get(list_key,[]):
+        type_ = identifier.get(type_key)
+        value = identifier.get(value_key)
+        if bool(type_) and bool(value) :
+            if isinstance(value, list):
+                value = ','.join( value )
+            if value_key == 'identifier':
+                value = strip_uri_prefix(value)
+            identifiers.append({
+                'type': type_,
+                'identifier': value
+            })
+    return identifiers
+
+
 
 
 def strip_uri_prefix(identifier):

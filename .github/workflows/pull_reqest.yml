@@ -12,7 +12,7 @@ jobs:
       - name: Build the stack
         run: docker compose -f "docker-compose.yml" up -d
       - name: Run Tests
-        run: docker compose -f "docker-compose.yml" run web ./bin/ci.sh
+        run: docker compose -f "docker-compose.yml" exec web ./bin/ci.sh
       - name: Stop containers
         if: always()
         run: docker compose -f "docker-compose.yml" down

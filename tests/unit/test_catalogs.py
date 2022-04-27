@@ -83,8 +83,9 @@ def test_none_identifier_to_string():
         'type': "ABC",
         'identifier': None
     }
-    identifier_string = catalogs.identifier_to_string(identifier_type)
-    assert identifier_string == "isbn:9783851254679"
+    with pytest.raises(catalogs.InvalidIdentifierException) as exc:
+        identifier_string = catalogs.identifier_to_string(identifier_type)
+    assert exc.type == catalogs.InvalidIdentifierException
 
 def test_none_type_identifier_to_string():
     """Tests for converting an ISBN numeric identifier to single string"""
