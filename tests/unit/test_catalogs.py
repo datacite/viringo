@@ -1,5 +1,6 @@
 """Unit tests for the OAI-PMH DataCite Catalog implementation"""
 
+import pytest
 from viringo import catalogs
 
 def test_set_to_search_query():
@@ -62,9 +63,7 @@ def test_identifier_to_string():
         'type': 'DOI',
         'identifier': "10.5072/1234"
     }
-
     identifier_string = catalogs.identifier_to_string(identifier_type)
-
     assert identifier_string == "doi:10.5072/1234"
 
 def test_numeric_identifier_to_string():
@@ -74,7 +73,27 @@ def test_numeric_identifier_to_string():
         'type': 'ISBN',
         'identifier': 9783851254679
     }
-
     identifier_string = catalogs.identifier_to_string(identifier_type)
-
     assert identifier_string == "isbn:9783851254679"
+
+def test_none_identifier_to_string():
+    """Tests for converting an ISBN numeric identifier to single string"""
+
+    identifier_type = {
+        'type': "ABC",
+        'identifier': None
+    }
+    identifier_string = catalogs.identifier_to_string(identifier_type)
+    assert identifier_string == "isbn:9783851254679"
+
+def test_none_type_identifier_to_string():
+    """Tests for converting an ISBN numeric identifier to single string"""
+
+    identifier_type = {
+        'type': None,
+        'identifier': 9783851254679
+    }
+    with pytest.raises(catalogs.InvalidIdentifierException) as exc:
+        identifier_string = catalogs.identifier_to_string(identifier_type)
+    assert exc.type == catalogs.InvalidIdentifierException
+
