@@ -139,11 +139,15 @@ def index():
     # Handle a request for a specific verb
     xml = oai.handleRequest(oai_request_args)
 
+    # xsl stylesheet from static url path
+    xsl_path = current_app.static_url_path + '/oaitohtml.xsl'
+    full_xsl_instruction = 'type="text/xsl" href="%s"' % xsl_path
+
     # This isn't the prettiest way but we need to add the xsl stylesheet
     dom = minidom.parseString(xml)
     process_instruction = dom.createProcessingInstruction(
         'xml-stylesheet',
-        'type="text/xsl" href="/static/oaitohtml.xsl"'
+        full_xsl_instruction
     )
     root = dom.firstChild
     dom.insertBefore(process_instruction, root)
