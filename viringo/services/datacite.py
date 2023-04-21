@@ -243,7 +243,8 @@ def get_metadata_list(
     params = {
         'detail': True,
         'page[size]': config.RESULT_SET_SIZE,
-        'page[cursor]': cursor
+        'page[cursor]': cursor,
+        'state': 'registered,findable',
     }
 
     # Only use the provider id if we dont have a client id
