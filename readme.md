@@ -3,7 +3,7 @@
 # Viringo
 
 OAI-PMH Compatible provider for exposing PID related metadata.
-Specifically built for support for DataCite metadata. To use this service please 
+Specifically built for support for DataCite metadata. To use this service please
 go to [https://oai.datacite.org](https://oai.datacite.org).
 
 ## What's a "Viringo"
@@ -30,7 +30,7 @@ You can now point your browser to `http://localhost:8091` and use the applicatio
 
 ## Development
 
-Unit and Integration tests are split out to allow optional faster builds. 
+Unit and Integration tests are split out to allow optional faster builds.
 Integration tests are higher level tests that will usually integrate or mock with
 other dependencies.
 
@@ -42,6 +42,22 @@ other dependencies.
 
 Follow along via [Github Issues](https://github.com/datacite/lupo/issues).
 
+## Local system development
+
+With pipenv it is simple to configure in a virtualenv for local development.
+This method allows full usage of the native flask development server.
+
+### Pipenv
+This project uses Pipenv, full details can be found here https://docs.pipenv.org/en/latest/
+
+```
+$ pipenv install
+$ pipenv shell
+$ FLASK_APP=viringo FLASK_ENV=development flask run
+```
+
+Access on: http://localhost:5000/
+
 ### Note on Patches/Pull Requests
 
 * Fork the project
@@ -49,6 +65,7 @@ Follow along via [Github Issues](https://github.com/datacite/lupo/issues).
 * Implement your feature or make a bug fix
 * Do not mess with version or history
 * Commit, push and make a pull request. Bonus points for topical branches.
+
 
 ## License
 
