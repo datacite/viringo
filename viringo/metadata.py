@@ -9,6 +9,9 @@ NS_OAIDC = 'http://www.openarchives.org/OAI/2.0/oai_dc/'
 NS_DC = "http://purl.org/dc/elements/1.1/"
 OAI_DATACITE_NS = "http://schema.datacite.org/oai/oai-1.1/"
 
+def strip_invalid_xml_chars(value: str | bytes) -> str:
+    return re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', value)
+
 def oai_dc_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into DC format"""
 
@@ -46,23 +49,27 @@ def oai_dc_writer(element: etree.Element, metadata):
                 new_element = etree.SubElement(e_dc, nsdc(name))
                 # The regular expression here is to filter only valid XML chars
                 # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-                new_element.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', value)
+                new_element.text = strip_invalid_xml_chars(value)
 
 def datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
-    raw_xml = _map.get('xml', '')
+    
+    raw_xml_string = _map.get('xml', '').decode('utf-8')
+    raw_xml_string = strip_invalid_xml_chars(raw_xml_string)
 
-    xml_resource_element = etree.fromstring(raw_xml)
+    xml_resource_element = etree.fromstring(raw_xml_string.encode('utf-8'))
 
     element.append(xml_resource_element)
 
 def oai_datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
-    raw_xml = _map.get('xml', '')
 
-    xml_resource_element = etree.fromstring(raw_xml)
+    raw_xml_string = _map.get('xml', '').decode('utf-8')
+    raw_xml_string = strip_invalid_xml_chars(raw_xml_string)
+
+    xml_resource_element = etree.fromstring(raw_xml_string.encode('utf-8'))
 
     e_oai_datacite = etree.SubElement(
         element, "oai_datacite", {'xmlns': 'http://schema.datacite.org/oai/oai-1.1/'},
