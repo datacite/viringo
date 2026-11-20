@@ -22,7 +22,7 @@ factory-boy = "*"
 json_log_formatter = "*"
 sentry-sdk = {extras = ["flask"],version = "*"}
 python-dotenv = "*"
-pyoai = {ref = "5ff2f15e869869e70d8139e4c37b7832854d7049", git = "https://github.com/infrae/pyoai.git"}
+oaipmh = "~=4.0"
 
 [requires]
-python_version = "3.8"
+python_version = "3.14"
