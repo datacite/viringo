@@ -9,13 +9,37 @@ on:
 permissions:
   contents: read
 
+env:
+  # Azure-hosted Ubuntu mirror, local to GitHub-hosted runners; the default
+  # archive/security mirrors are very slow from them. Keep in sync with build.yml.
+  UBUNTU_MIRROR: http://azure.archive.ubuntu.com/ubuntu
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Build the stack
-        run: docker compose -f docker-compose.yml up -d --build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Compute weekly apt cache-bust key
+        id: week
+        run: echo "key=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+      # Same build args and cache as build.yml, so in deploy/release runs the
+      # build job reuses these layers instead of building the image again.
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: viringo-web:latest
+          build-args: |
+            UBUNTU_MIRROR=${{ env.UBUNTU_MIRROR }}
+            APT_CACHE_BUST=${{ steps.week.outputs.key }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Start the stack
+        run: docker compose -f docker-compose.yml up -d --no-build --pull never
       - name: Run Tests
         run: docker compose -f docker-compose.yml exec -T web ./bin/ci.sh
       - name: Stop containers

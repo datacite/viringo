@@ -1,0 +1,7 @@
+# Keep the build context (and the image) free of VCS metadata and local
+# artifacts. .git also differs between CI checkouts, which would defeat layer
+# cache reuse between the test and build jobs.
+.git
+.env
+.pytest_cache
+**/__pycache__

@@ -12,6 +12,10 @@ on:
         required: true
         type: string
 
+env:
+  # Must match pull_reqest.yml so this build reuses the test job's cached layers.
+  UBUNTU_MIRROR: http://azure.archive.ubuntu.com/ubuntu
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +24,9 @@ jobs:
         uses: actions/checkout@v7
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+      - name: Compute weekly apt cache-bust key
+        id: week
+        run: echo "key=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
       - name: Login to DockerHub
         uses: docker/login-action@v4
         with:
@@ -42,5 +49,8 @@ jobs:
           tags: |
             ${{ github.repository }}:${{ inputs.image_tag }}
             ghcr.io/${{ github.repository }}:${{ inputs.image_tag }}
+          build-args: |
+            UBUNTU_MIRROR=${{ env.UBUNTU_MIRROR }}
+            APT_CACHE_BUST=${{ steps.week.outputs.key }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
