@@ -1,0 +1,72 @@
+name: Update Terraform
+on:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
+    inputs:
+      deployment_environment:
+        description: Terraform target environment (staging or production)
+        required: true
+        type: string
+      git_tag:
+        description: Release tag written to the tfvars "version" (empty for staging)
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      GIT_TAG: ${{ inputs.git_tag }}
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment }}
+      DOCKERIZE_VERSION: v0.16.0
+    steps:
+      - name: Select terraform directory
+        id: target
+        run: |
+          case "${DEPLOYMENT_ENVIRONMENT}" in
+            staging)    echo "dir=stage/services/oai" >> "$GITHUB_OUTPUT" ;;
+            production) echo "dir=prod-eu-west/services/oai" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Unknown deployment_environment: ${DEPLOYMENT_ENVIRONMENT}" >&2; exit 1 ;;
+          esac
+          # Short SHA, matching what was previously written by `git rev-parse --short`
+          echo "GIT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - name: Checkout terraform config repo
+        uses: actions/checkout@v7
+        with:
+          # public repo with terraform configuration
+          repository: 'datacite/mastino'
+          persist-credentials: false
+
+      - name: Commit changes to terraform config repository
+        # use go template in terraform config repository to update git sha and tag
+        # commit and push changes to trigger terraform workflow
+        run: |
+          # Extract only the binary, outside the checkout: newer release
+          # tarballs also contain LICENSE/README.md, which would clobber
+          # mastino's own files.
+          wget -qO- "https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz" \
+            | tar -xzf - -C "$RUNNER_TEMP" dockerize
+
+          TFVARS="${{ steps.target.outputs.dir }}/_viringo.auto.tfvars"
+          "$RUNNER_TEMP/dockerize" -template "${TFVARS}.tmpl:${TFVARS}"
+
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add "${TFVARS}"
+          if git diff --cached --quiet; then
+            echo "No change to ${TFVARS}; nothing to deploy."
+          else
+            git commit -m "Adding viringo (oai) git variables for commit ${GIT_SHA} tag ${GIT_TAG}"
+          fi
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v1.3.0
+        with:
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: 'datacite/mastino'
+          branch: 'refs/heads/master'
+          tags: false
