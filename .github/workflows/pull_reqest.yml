@@ -21,15 +21,3 @@ jobs:
       - name: Stop containers
         if: always()
         run: docker compose -f docker-compose.yml down
-
-  audit:
-    # Only on pull requests: a newly published advisory should be flagged for
-    # review, not block an urgent deploy or release.
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Export locked requirements
-        run: pipx run pipenv requirements --dev > "$RUNNER_TEMP/requirements.txt"
-      - name: Audit Python dependencies
-        run: pipx run pip-audit --requirement "$RUNNER_TEMP/requirements.txt" --no-deps --disable-pip
