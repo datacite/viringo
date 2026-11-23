@@ -12,9 +12,41 @@ CMD ["/sbin/my_init"]
 # Allow app user to read /etc/container_environment
 RUN usermod -a -G docker_env app
 
+# Optional preferred Ubuntu mirror used only while building, e.g. a cloud-local
+# mirror in CI where archive.ubuntu.com/security.ubuntu.com are slow. When set,
+# apt uses mirror lists (like GitHub's own runner images do) with failover:
+#  - main/updates/backports: this mirror first, then the default mirrors;
+#  - security: security.ubuntu.com first, then this mirror, then archive.
+#    The security index has no Valid-Until, so a mirror that silently stops
+#    syncing could otherwise hide security fixes; it is only ~2 MB, so taking
+#    it from the authoritative host costs little.
+# Empty keeps the defaults. The image's own apt sources are restored afterwards.
+ARG UBUNTU_MIRROR=
+# Changing this value forces the upgrade layer below to rebuild so new OS
+# security updates are picked up; CI passes the ISO week.
+ARG APT_CACHE_BUST=
+
 # Update installed APT packages
-RUN apt-get update && \
+RUN echo "apt cache bust: ${APT_CACHE_BUST:-none}" && \
+    cp /etc/apt/sources.list.d/ubuntu.sources /tmp/ubuntu.sources.orig && \
+    if [ -n "${UBUNTU_MIRROR}" ]; then \
+      printf '%s\tpriority:1\n%s\tpriority:2\n%s\tpriority:3\n' \
+        "${UBUNTU_MIRROR%/}/" \
+        "http://archive.ubuntu.com/ubuntu/" \
+        "http://security.ubuntu.com/ubuntu/" > /etc/apt/apt-mirrors.txt && \
+      printf '%s\tpriority:1\n%s\tpriority:2\n%s\tpriority:3\n' \
+        "http://security.ubuntu.com/ubuntu/" \
+        "${UBUNTU_MIRROR%/}/" \
+        "http://archive.ubuntu.com/ubuntu/" > /etc/apt/apt-mirrors-security.txt && \
+      sed -i -E \
+        -e "s#^URIs: http://archive\.ubuntu\.com/ubuntu/?#URIs: mirror+file:/etc/apt/apt-mirrors.txt#" \
+        -e "s#^URIs: http://security\.ubuntu\.com/ubuntu/?#URIs: mirror+file:/etc/apt/apt-mirrors-security.txt#" \
+        /etc/apt/sources.list.d/ubuntu.sources; \
+    fi && \
+    apt-get update && \
     apt-get upgrade -y -o Dpkg::Options::="--force-confold" && \
+    cp /tmp/ubuntu.sources.orig /etc/apt/sources.list.d/ubuntu.sources && \
+    rm -f /etc/apt/apt-mirrors.txt /etc/apt/apt-mirrors-security.txt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
