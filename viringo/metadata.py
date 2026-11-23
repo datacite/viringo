@@ -9,8 +9,11 @@ NS_OAIDC = 'http://www.openarchives.org/OAI/2.0/oai_dc/'
 NS_DC = "http://purl.org/dc/elements/1.1/"
 OAI_DATACITE_NS = "http://schema.datacite.org/oai/oai-1.1/"
 
-def strip_invalid_xml_chars(value: str | bytes) -> str:
+def strip_invalid_xml_chars(value: str) -> str:
     return re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', value)
+
+def parse_datacite_xml(value: bytes) -> str:
+    return strip_invalid_xml_chars(value.decode('utf-8'))
 
 def oai_dc_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into DC format"""
@@ -55,8 +58,7 @@ def datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
     
-    raw_xml_string = _map.get('xml', '').decode('utf-8')
-    raw_xml_string = strip_invalid_xml_chars(raw_xml_string)
+    raw_xml_string = parse_datacite_xml(_map.get('xml', b''))
 
     xml_resource_element = etree.fromstring(raw_xml_string.encode('utf-8'))
 
@@ -66,8 +68,7 @@ def oai_datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
 
-    raw_xml_string = _map.get('xml', '').decode('utf-8')
-    raw_xml_string = strip_invalid_xml_chars(raw_xml_string)
+    raw_xml_string = parse_datacite_xml(_map.get('xml', b''))
 
     xml_resource_element = etree.fromstring(raw_xml_string.encode('utf-8'))
 
