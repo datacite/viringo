@@ -57,6 +57,14 @@ def parse_datacite_xml(raw_xml: bytes) -> etree._Element:
 
         return etree.fromstring(cleaned.encode('utf-8'))
 
+def resource_element(_map) -> etree._Element:
+    """Return the record's parsed resource element, parsing the raw XML if needed"""
+    xml_resource_element = _map.get('xml_element')
+    if xml_resource_element is None:
+        xml_resource_element = parse_datacite_xml(_map.get('xml', b''))
+
+    return xml_resource_element
+
 def oai_dc_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into DC format"""
 
@@ -98,7 +106,7 @@ def datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
 
-    xml_resource_element = parse_datacite_xml(_map.get('xml', b''))
+    xml_resource_element = resource_element(_map)
 
     element.append(xml_resource_element)
 
@@ -106,7 +114,7 @@ def oai_datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
 
-    xml_resource_element = parse_datacite_xml(_map.get('xml', b''))
+    xml_resource_element = resource_element(_map)
 
     e_oai_datacite = etree.SubElement(
         element, "oai_datacite", {'xmlns': 'http://schema.datacite.org/oai/oai-1.1/'},

@@ -1,6 +1,7 @@
 """Tests for http endpoints of OAI-PMH verbs"""
 
 import datetime
+import pytest
 from lxml import etree
 
 from . import factories
@@ -318,3 +319,81 @@ def test_responds_to_get_post(client):
 
     assert response.status_code == 200
     assert response.content_type == 'application/xml; charset=utf-8'
+
+OAI_NS = {'oai': 'http://www.openarchives.org/OAI/2.0/'}
+UNPARSEABLE_XML = b'<resource><title>Unclosed</resource>'
+
+def record_identifiers(response):
+    """Return the identifiers of the records in an OAI response"""
+    return etree.fromstring(response.get_data()).xpath(
+        '//oai:record/oai:header/oai:identifier/text()', namespaces=OAI_NS
+    )
+
+@pytest.mark.parametrize('metadata_prefix', ['datacite', 'oai_datacite'])
+def test_list_records_skips_unparseable_xml(client, mocker, caplog, metadata_prefix):
+    """Test a record with XML that can't be parsed is skipped without failing the page"""
+
+    mocked_get_metadata_list = mocker.patch('viringo.services.datacite.get_metadata_list')
+    results = [
+        factories.MetadataFactory(identifier='10.5072/good-1'),
+        factories.MetadataFactory(identifier='10.5072/broken', xml=UNPARSEABLE_XML),
+        factories.MetadataFactory(identifier='10.5072/good-2'),
+    ]
+    mocked_get_metadata_list.return_value = results, 3, 'next-page'
+
+    response = client.get('/oai?verb=ListRecords&metadataPrefix=' + metadata_prefix)
+
+    assert response.status_code == 200
+    assert record_identifiers(response) == ['doi:10.5072/good-1', 'doi:10.5072/good-2']
+    # Harvesters can still move on to the next page
+    assert etree.fromstring(response.get_data()).find(
+        './/oai:resumptionToken', namespaces=OAI_NS
+    ).text
+    assert 'Skipping doi:10.5072/broken' in caplog.text
+
+@pytest.mark.parametrize('metadata_prefix', ['datacite', 'oai_datacite'])
+def test_list_records_deleted_record_without_xml(client, mocker, metadata_prefix):
+    """Test a deleted record with no stored XML is listed with only its header"""
+
+    mocked_get_metadata_list = mocker.patch('viringo.services.datacite.get_metadata_list')
+    deleted = factories.MetadataFactory(identifier='10.5072/deleted', xml=None, active=False)
+    mocked_get_metadata_list.return_value = [deleted], 1, None
+
+    response = client.get('/oai?verb=ListRecords&metadataPrefix=' + metadata_prefix)
+
+    assert response.status_code == 200
+    header = etree.fromstring(response.get_data()).find('.//oai:header', namespaces=OAI_NS)
+    assert header.get('status') == 'deleted'
+
+@pytest.mark.parametrize('metadata_prefix', ['datacite', 'oai_datacite'])
+def test_get_record_unparseable_xml(client, mocker, caplog, metadata_prefix):
+    """Test GetRecord for a record whose XML can't be parsed returns an OAI error"""
+
+    mocked_get_metadata = mocker.patch('viringo.services.datacite.get_metadata')
+    mocked_get_metadata.return_value = factories.MetadataFactory(
+        identifier='10.5072/broken', xml=UNPARSEABLE_XML
+    )
+
+    response = client.get(
+        '/oai?verb=GetRecord&metadataPrefix=%s&identifier=doi:10.5072/broken' % metadata_prefix
+    )
+
+    assert response.status_code == 200
+    errors = etree.fromstring(response.get_data()).findall('.//oai:error', namespaces=OAI_NS)
+    assert [e.get('code') for e in errors] == ['cannotDisseminateFormat']
+    assert 'Unable to parse stored XML for doi:10.5072/broken' in caplog.text
+
+def test_get_record_unparseable_xml_oai_dc(client, mocker):
+    """Test a record whose XML can't be parsed is still served in oai_dc"""
+
+    mocked_get_metadata = mocker.patch('viringo.services.datacite.get_metadata')
+    mocked_get_metadata.return_value = factories.MetadataFactory(
+        identifier='10.5072/broken', xml=UNPARSEABLE_XML
+    )
+
+    response = client.get(
+        '/oai?verb=GetRecord&metadataPrefix=oai_dc&identifier=doi:10.5072/broken'
+    )
+
+    assert response.status_code == 200
+    assert record_identifiers(response) == ['doi:10.5072/broken']
