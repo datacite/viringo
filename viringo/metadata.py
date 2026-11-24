@@ -9,6 +9,62 @@ NS_OAIDC = 'http://www.openarchives.org/OAI/2.0/oai_dc/'
 NS_DC = "http://purl.org/dc/elements/1.1/"
 OAI_DATACITE_NS = "http://schema.datacite.org/oai/oai-1.1/"
 
+# Matches runs of characters that XML 1.0 does not allow:
+# Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+INVALID_XML_CHARS = re.compile(
+    '[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+'
+)
+
+def strip_invalid_xml_chars(value: str) -> str:
+    """Remove characters that are not allowed in an XML 1.0 document"""
+    return INVALID_XML_CHARS.sub('', value)
+
+# The encoding named in an XML declaration, which must open the document
+XML_DECLARED_ENCODING = re.compile(
+    rb'(?:\xef\xbb\xbf)?<\?xml[^>]*?\sencoding\s*=\s*["\']([^"\']+)["\']'
+)
+
+def is_utf8_xml(raw_xml: bytes) -> bool:
+    """Whether a document is UTF-8, either by declaration or by default"""
+    declaration = XML_DECLARED_ENCODING.match(raw_xml)
+    if declaration and declaration.group(1).lower() not in (b'utf-8', b'utf8'):
+        return False
+
+    try:
+        raw_xml.decode('utf-8')
+    except UnicodeDecodeError:
+        return False
+
+    return True
+
+def parse_datacite_xml(raw_xml: bytes) -> etree._Element:
+    """Parse raw DataCite XML into an element.
+
+    The original bytes are parsed first so lxml honours the document's declared
+    encoding. Only if that fails, UTF-8 documents are retried with characters
+    that are invalid in XML removed. Anything else re-raises the original error.
+    """
+    try:
+        return etree.fromstring(raw_xml)
+    except etree.XMLSyntaxError:
+        if not is_utf8_xml(raw_xml):
+            raise
+
+        text = raw_xml.decode('utf-8')
+        cleaned = strip_invalid_xml_chars(text)
+        if cleaned == text:
+            raise
+
+        return etree.fromstring(cleaned.encode('utf-8'))
+
+def resource_element(_map) -> etree._Element:
+    """Return the record's parsed resource element, parsing the raw XML if needed"""
+    xml_resource_element = _map.get('xml_element')
+    if xml_resource_element is None:
+        xml_resource_element = parse_datacite_xml(_map.get('xml', b''))
+
+    return xml_resource_element
+
 def oai_dc_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into DC format"""
 
@@ -44,25 +100,21 @@ def oai_dc_writer(element: etree.Element, metadata):
         for value in _map.get(name, []):
             if value:
                 new_element = etree.SubElement(e_dc, nsdc(name))
-                # The regular expression here is to filter only valid XML chars
-                # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-                new_element.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', value)
+                new_element.text = strip_invalid_xml_chars(value)
 
 def datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
-    raw_xml = _map.get('xml', '')
 
-    xml_resource_element = etree.fromstring(raw_xml)
+    xml_resource_element = resource_element(_map)
 
     element.append(xml_resource_element)
 
 def oai_datacite_writer(element: etree.Element, metadata):
     """Writer for writing data in a metadata object out into raw datacite format"""
     _map = metadata.getMap()
-    raw_xml = _map.get('xml', '')
 
-    xml_resource_element = etree.fromstring(raw_xml)
+    xml_resource_element = resource_element(_map)
 
     e_oai_datacite = etree.SubElement(
         element, "oai_datacite", {'xmlns': 'http://schema.datacite.org/oai/oai-1.1/'},

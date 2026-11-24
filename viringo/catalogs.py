@@ -8,10 +8,15 @@ import base64
 import binascii
 import logging
 from datetime import datetime
+from lxml import etree
 from oaipmh import common, error
 
 from viringo import config
+from .metadata import parse_datacite_xml
 from .services import datacite
+
+# Metadata formats whose writers embed the record's stored DataCite XML
+RAW_XML_FORMATS = ('datacite', 'oai_datacite')
 
 
 class InvalidIdentifierException(Exception):
@@ -91,7 +96,16 @@ class DataCiteOAIServer():
             )
 
         # Build metadata based on requested format and result
-        metadata = self.build_metadata_map(result)
+        try:
+            metadata = self.build_metadata_map(result, metadataPrefix)
+        except etree.XMLSyntaxError as exc:
+            logging.error(
+                "Unable to parse stored XML for doi:%s", result.identifier, exc_info=True
+            )
+            raise error.CannotDisseminateFormatError(
+                "\"%s\" cannot be disseminated in %s format because its stored XML"
+                " is not well-formed" % (identifier, metadataPrefix)
+            ) from exc
 
         header = self.build_header(result)
         record = self.build_record(metadata)
@@ -131,8 +145,18 @@ class DataCiteOAIServer():
         records = []
         if results:
             for result in results:
-                # Build metadata based on requested format and result
-                metadata = self.build_metadata_map(result)
+                # Build metadata based on requested format and result.
+                # Skip a record whose XML can't be parsed rather than failing the
+                # whole page, which would stop harvesters from getting past it.
+                try:
+                    metadata = self.build_metadata_map(result, metadataPrefix)
+                except etree.XMLSyntaxError:
+                    logging.error(
+                        "Skipping doi:%s in ListRecords, unable to parse stored XML",
+                        result.identifier,
+                        exc_info=True
+                    )
+                    continue
 
                 header = self.build_header(result)
                 record = self.build_record(metadata)
@@ -239,8 +263,13 @@ class DataCiteOAIServer():
             metadata
         )
 
-    def build_metadata_map(self, result):
-        """Construct a metadata map object for oai metadata writing"""
+    def build_metadata_map(self, result, metadata_prefix=None):
+        """Construct a metadata map object for oai metadata writing
+
+        For formats that embed the stored XML, the XML is parsed here so that
+        a record that can't be parsed is found before the response is written.
+        Raises etree.XMLSyntaxError in that case.
+        """
         dates = []
         if result.publication_year:
             dates.append(str(result.publication_year))
@@ -290,6 +319,9 @@ class DataCiteOAIServer():
             'set': result.client,
             'metadata_version': result.metadata_version
         }
+
+        if metadata_prefix in RAW_XML_FORMATS and result.active:
+            metadata['xml_element'] = parse_datacite_xml(result.xml)
 
         return metadata
 
