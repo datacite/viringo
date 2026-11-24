@@ -18,7 +18,6 @@ flask = "*"
 requests = "*"
 python-dateutil = "*"
 lxml = "*"
-factory-boy = "*"
 json_log_formatter = "*"
 sentry-sdk = {extras = ["flask"],version = "*"}
 python-dotenv = "*"

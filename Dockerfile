@@ -76,14 +76,16 @@ COPY vendor/docker/env.conf /etc/nginx/main.d/env.conf
 # Run additional scripts during container startup (i.e. not at build time)
 RUN mkdir -p /etc/my_init.d
 
-# enable SSH
-RUN rm -f /etc/service/sshd/down && \
-    /etc/my_init.d/00_regen_ssh_host_keys.sh
+# enable SSH. The base image ships pre-generated host keys, which every image
+# built from it (and anyone who pulls it) shares. Delete them so
+# /etc/my_init.d/00_regen_ssh_host_keys.sh generates unique keys when each
+# container starts.
+RUN rm -f /etc/service/sshd/down /etc/ssh/ssh_host_*
 
 # install custom ssh key during startup
 COPY vendor/docker/10_ssh.sh /etc/my_init.d/10_ssh.sh
 
-# restart server on file changes in development
+# restart server on every request in development (FLASK_DEBUG set)
 COPY vendor/docker/20_always_restart.sh /etc/my_init.d/20_always_restart.sh
 
 ## Viringo setup

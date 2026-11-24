@@ -120,3 +120,6 @@ dmypy.json
 
 # Env configs
 *.env
+
+# Passenger restart marker created by the dev setup (20_always_restart.sh)
+/tmp/

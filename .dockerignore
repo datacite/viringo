@@ -5,3 +5,5 @@
 .env
 .pytest_cache
 **/__pycache__
+# Dev-only Passenger restart marker; must never end up in an image.
+tmp
