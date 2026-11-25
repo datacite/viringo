@@ -83,7 +83,7 @@ RUN rm -f /etc/service/sshd/down && \
 # install custom ssh key during startup
 COPY vendor/docker/10_ssh.sh /etc/my_init.d/10_ssh.sh
 
-# restart server on file changes in development
+# restart server on every request in development (FLASK_DEBUG set)
 COPY vendor/docker/20_always_restart.sh /etc/my_init.d/20_always_restart.sh
 
 ## Viringo setup

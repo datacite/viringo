@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/datacite/viringo.svg?branch=master)](https://travis-ci.com/datacite/viringo)
+[![Deploy](https://github.com/datacite/viringo/actions/workflows/deploy.yml/badge.svg)](https://github.com/datacite/viringo/actions/workflows/deploy.yml)
 
 # Viringo
 
@@ -23,10 +23,15 @@ docker run -p 8091:80 datacite/viringo
 or
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 You can now point your browser to `http://localhost:8091` and use the application.
+
+For development, `FLASK_DEBUG=1 docker compose up` enables Flask debug mode,
+installs the dev dependencies and makes Passenger reload the app, so edits to
+the (bind-mounted) source are picked up within about 10 seconds without
+restarting the container.
 
 ## Development
 
@@ -34,11 +39,11 @@ Unit and Integration tests are split out to allow optional faster builds.
 Integration tests are higher level tests that will usually integrate or mock with
 other dependencies.
 
-* Linter: `docker-compose exec web pipenv run pylint **/*.py`
-* All tests: `docker-compose exec web pipenv run pytest`
-* Only mocked tests: `docker-compose exec web pipenv run pytest -v -m "not real"`
-* Integration tests: `docker-compose exec web pipenv run pytest tests/integration`
-* Unit tests: `docker-compose exec web pipenv run pytest tests/unit`
+* Linter: `docker compose exec web pipenv run pylint **/*.py`
+* All tests: `docker compose exec web pipenv run pytest`
+* Only mocked tests: `docker compose exec web pipenv run pytest -v -m "not real"`
+* Integration tests: `docker compose exec web pipenv run pytest tests/integration`
+* Unit tests: `docker compose exec web pipenv run pytest tests/unit`
 
 Follow along via [Github Issues](https://github.com/datacite/lupo/issues).
 
@@ -53,7 +58,7 @@ This project uses Pipenv, full details can be found here https://docs.pipenv.org
 ```
 $ pipenv install
 $ pipenv shell
-$ FLASK_APP=viringo FLASK_ENV=development flask run
+$ flask --app viringo run --debug
 ```
 
 Access on: http://localhost:5000/
