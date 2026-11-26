@@ -1,4 +1,4 @@
-FROM phusion/passenger-python314:3.2.3
+FROM phusion/passenger-python314:3.2.4
 LABEL maintainer="support@datacite.org"
 
 # Set correct environment variables.
